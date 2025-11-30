@@ -146,7 +146,7 @@ public final class Canasta
      * @param input
      *     used for player interactions
      */
-    private YourGame( final Scanner input )
+    private Canasta( final Scanner input )
         {
 
         this.running = false ;
@@ -189,46 +189,46 @@ public final class Canasta
 
         try ( final Scanner input = new Scanner( System.in ) ; )
             {
-            final YourGame yourGame = new YourGame( input ) ;
+            final Canasta canasta = new Canasta( input ) ;
             
             welcome() ;
 
             displayDivider() ;
             
-            yourGame.setup() ;
+            canasta.setup() ;
 
-            while ( yourGame.running )
+            while ( canasta.running )
                 {
-                yourGame.run() ;
+                canasta.run() ;
 
-                if ( !yourGame.running )
+                if ( !canasta.running )
                     {
-                    yourGame.tearDown() ;
+                    canasta.tearDown() ;
 
                     return ;
                     }
 
                 displayDivider() ;
                 
-                yourGame.summary() ;
+                canasta.summary() ;
 
                 displayDivider() ;
                 
-                final String playAgain = yourGame.promptForLine( "Play again?" ) ;
+                final String playAgain = canasta.promptForLine( "Play again?" ) ;
 
                 if ( Character.toLowerCase( playAgain.charAt( 0 ) ) != 'y' )
                     {
-                    yourGame.running = false ;
+                    canasta.running = false ;
 
-                    yourGame.tearDown() ;
+                    canasta.tearDown() ;
 
                     return ;
                     }
 
-                yourGame.reset() ;
+                canasta.reset() ;
                 }
 
-            yourGame.tearDown() ;
+            canasta.tearDown() ;
             }   // end try (input)
 
         }   // end main()
