@@ -28,7 +28,7 @@
  */
 
 
-package edu.wit.scds.ds.lists.app.card_game.your_game.pile ;
+package edu.wit.scds.ds.lists.app.card_game.canasta.pile ;
 
 import static edu.wit.scds.ds.lists.app.card_game.universal_base.support.Orientation.FACE_UP ;
 

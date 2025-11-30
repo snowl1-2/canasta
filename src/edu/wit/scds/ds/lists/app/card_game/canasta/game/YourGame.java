@@ -28,7 +28,7 @@
  */
 
 
-package edu.wit.scds.ds.lists.app.card_game.your_game.game ;
+package edu.wit.scds.ds.lists.app.card_game.canasta.game ;
 
 import static edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank.JOKER ;
 
@@ -37,9 +37,9 @@ import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank ;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Suit ;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Deck ;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Pile ;
-import edu.wit.scds.ds.lists.app.card_game.your_game.pile.DiscardPile ;
-import edu.wit.scds.ds.lists.app.card_game.your_game.pile.Meld ;
-import edu.wit.scds.ds.lists.app.card_game.your_game.pile.Stock ;
+import edu.wit.scds.ds.lists.app.card_game.canasta.pile.DiscardPile ;
+import edu.wit.scds.ds.lists.app.card_game.canasta.pile.Meld ;
+import edu.wit.scds.ds.lists.app.card_game.canasta.pile.Stock ;
 
 import java.util.ArrayList ;
 import java.util.LinkedList ;
