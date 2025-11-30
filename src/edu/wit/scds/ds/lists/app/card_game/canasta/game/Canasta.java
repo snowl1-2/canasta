@@ -100,7 +100,7 @@ import java.util.Scanner ;
  * 
  * @version 3.0 2025-11-03 modifications for your implementation
  */
-public final class YourGame
+public final class Canasta
     {
     /*
      * constants
