@@ -54,7 +54,7 @@ import java.util.Collections ;
  *     {@code Collections.[max,min]()}
  *     </ul>
  * 
- * @author Your Name
+ * @author Lynn Snow
  * 
  * @version 4.0 2025-11-03 modifications for your implementation
  */

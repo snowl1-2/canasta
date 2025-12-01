@@ -54,9 +54,9 @@ import edu.wit.scds.ds.lists.app.card_game.universal_base.support.NoCardsExcepti
  *     <li>add constructor that provides source cards
  *     </ul>
  * 
- * @author Your Name
+ * @author Lynn Snow
  * 
- * @version 3.0 2025-11-03 Initial implementation
+ * @version 3.0 2025-12-01 Canasta Implementation
  */
 public final class Stock extends Pile
     {
@@ -169,7 +169,7 @@ public final class Stock extends Pile
         
         // move all the cards from the deck into the stock
         myStock.moveCardsToBottom( cardSource ) ;
-        cardSource.moveCardsToBottom( myStock.removeAllMatchingCards( new Card( JOKER ) ) ) ;
+        //cardSource.moveCardsToBottom( myStock.removeAllMatchingCards( new Card( JOKER ) ) ) ;
         
         // let's see what's in each pile
         System.out.printf( "deck: %s%n", cardSource.revealAll().toString() ) ;
