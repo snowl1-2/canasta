@@ -32,9 +32,12 @@ package edu.wit.scds.ds.lists.app.card_game.canasta.pile ;
 
 import static edu.wit.scds.ds.lists.app.card_game.universal_base.support.Orientation.FACE_UP ;
 
+// import java.util.ArrayList;
+// import java.util.List;
+
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Card;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank;
-import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Suit;
+// import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Suit;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Deck;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Pile ;
 import edu.wit.scds.ds.lists.app.card_game.universal_base.card.CardBase;
@@ -99,10 +102,53 @@ public final class Meld extends Pile
             System.out.println("Not a valid canasta.") ;
             }
         }   // end 1-arg constructor
+    
+    /**
+     * helper methods for Canasta rules & scoring
+     */
+
+    /**
+     * count wild cards (Joker or 2) in this meld
+     * 
+     * @return number of wild cards
+     */
+    // public int countWildCards()
+    //     {
+    //     int count = 0 ;
+    //     for ( final Card c : super.cards )
+    //         {
+    //         // final Rank r = c.getRank() ;
+    //         if ( r == Rank.JOKER || r == Rank.TWO )
+    //             {
+    //             count++;
+    //             }
+    //         return count ;
+    //         }
+    //     }
+    /**
+     * is this meld a canasta (7 or more cards)
+     * 
+     * @return true if 7+ cards
+     */
+    public boolean isCanasta()
+        {
+        return super.cardCount() >= 7 ;
+        }
+
+    /**
+     * return a shallow copy list of all cards in the meld
+     * 
+     * @return list of cards
+     */
+    // public List<Card> getAllCards()
+    //     {
+    //     return ArrayList<Card>( super.cards ) ;
+    //     }
+    
+
     /*
      * testing/debugging
      */
-
 
     /**
      * (optional) test driver
@@ -130,7 +176,7 @@ public final class Meld extends Pile
         discardPile.addToBottom(myStock.removeCardAt(5));
         //discardPile.addToBottom(myStock.removeCardAt(5));
 
-        Meld meld = new Meld(discardPile) ;
+        // Meld meld = new Meld(discardPile) ;
 
 
         }	// end main()

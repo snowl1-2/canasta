@@ -287,8 +287,8 @@ public final class Canasta
             //                                           13,
             //                                           maximumCardsPerHand ) ;
 
-            this.numberOfCardsPerHand = 13;
-            System.out.println("\nYou each start with 13 cards in your hand!");
+            this.numberOfCardsPerHand = 11;
+            System.out.println("\nYou each start with 11 cards in your hand!");
 
             if ( !this.running )
                 {
@@ -1166,4 +1166,4 @@ public final class Canasta
 
         }   // end promptForLine()
 
-    }   // end class YourGame
+    }   // end class Canasta
