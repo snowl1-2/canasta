@@ -324,10 +324,10 @@ public final class Player
      * @param cards list of cards to check
      * @return true if present
      */
-    public boolean handContainsAll( final List<Card> cards )
-        {
-        return this.hand.containsAllCards(cards) ;
-        } // end handContainsAll()
+    // public boolean handContainsAll( final List<Card> cards )
+    //     {
+    //     return this.hand.containsAllCards(cards) ;
+    //     } // end handContainsAll()
     
     /**
      * count how many cards of a given rank are in the hand
@@ -335,10 +335,10 @@ public final class Player
      * @param r the rank
      * @return count
      */
-    public int countRankInHand( final Rank r)
-        {
-        return this.hand.countRank(r) ;
-        } // end countRankInHand
+    // public int countRankInHand( final Rank r)
+    //     {
+    //     return this.hand.countRank(r) ;
+    //     } // end countRankInHand
 
     /**
      * remove a specific card from our hand (wraps existing play a card)
@@ -357,10 +357,10 @@ public final class Player
      * @param sample sample card
      * @return matching card reference or null
      */
-    public Card findMatchingCardInHand( final Card sample )
-        {
-        return this.hand.findMatchingCard( sample ) ;
-        } // end findMatchingCardInHand()
+    // public Card findMatchingCardInHand( final Card sample )
+    //     {
+    //     return this.hand.findMatchingCard( sample ) ;
+    //     } // end findMatchingCardInHand()
 
     /**
      * is the hand empty?
@@ -416,60 +416,60 @@ public final class Player
      */
     public void tallyRoundPoints()
         {
-        int roundPoints = 0;
+        // int roundPoints = 0;
 
-        // points from melds
-        for (final Meld m : this.melds )
-            {
-            //sum values of cards in this meld
-            for ( final Card c : m.getAllCards() )
-                {
-                final Rank r = c.getRank() ;
-                roundPoints += cardPointValue ( r ) ;
-                } // end for
-            // canasta bonuses
-            if ( m.isCanasta() )
-                {
-                if ( m.countWildCards() == 0)
-                    {
-                    roundPoints += 500 ;
-                    }
-                else
-                    {
-                    roundPoints += 300 ;
-                    } 
-                } 
-            } // end for
+        // // points from melds
+        // for (final Meld m : this.melds )
+        //     {
+        //     //sum values of cards in this meld
+        //     for ( final Card c : m.getAllCards() )
+        //         {
+        //         final Rank r = c.getRank() ;
+        //         roundPoints += cardPointValue ( r ) ;
+        //         } // end for
+        //     // canasta bonuses
+        //     if ( m.isCanasta() )
+        //         {
+        //         if ( m.countWildCards() == 0)
+        //             {
+        //             roundPoints += 500 ;
+        //             }
+        //         else
+        //             {
+        //             roundPoints += 300 ;
+        //             } 
+        //         } 
+        //     } // end for
         
-        // red 3 bonus (basic handling): +100 per red 3 collected this round
-        roundPoints += ( this.red3countThisRound * 100 ) ;
+        // // red 3 bonus (basic handling): +100 per red 3 collected this round
+        // roundPoints += ( this.red3countThisRound * 100 ) ;
 
-        // subtract points for cards left in hand (pentalty)
-        for ( final Card c : this.hand.getAllCards() )
-            {
-            roundPoints -= cardPointValue( c.getRank() ) ;
-            }
-        this.score +=roundPoints ;
+        // // subtract points for cards left in hand (pentalty)
+        // for ( final Card c : this.hand.getAllCards() )
+        //     {
+        //     roundPoints -= cardPointValue( c.getRank() ) ;
+        //     }
+        // this.score +=roundPoints ;
 
-        // reset round specific counters
-        this.red3CountThisRound = 0 ;
+        // // reset round specific counters
+        // this.red3CountThisRound = 0 ;
 
         } // end tallyRoundPoints()
     
-    private static int cardPointValue( final Rank r )
-        {
-        // typical Canasta values (adapt as needed for the rules doc)
-        return switch ( r )
-            {
-            case JOKER -> 50 ;
-            case ACE -> 20 ;
-            case TWO -> 20 ;
-            case KING, QUEEN, JACK, TEN, NINE, EIGHT -> 10 ;
-            case SEVEN, SIX, FIVE, FOUR -> 5 ;
-            case THREE -> 5 ; // black 3 is generally 5; red 3s handled as bonuses elsewhere
-            default -> 0 ;
-            } ;
-        } // end cardPointValue()
+    // private static int cardPointValue( final Rank r )
+    //     {
+    //     // typical Canasta values (adapt as needed for the rules doc)
+    //     return switch ( r )
+    //         {
+    //         case JOKER -> 50 ;
+    //         case ACE -> 20 ;
+    //         case TWO -> 20 ;
+    //         case KING, QUEEN, JACK, TEN, NINE, EIGHT -> 10 ;
+    //         case SEVEN, SIX, FIVE, FOUR -> 5 ;
+    //         case THREE -> 5 ; // black 3 is generally 5; red 3s handled as bonuses elsewhere
+    //         default -> 0 ;
+    //         } ;
+    //     } // end cardPointValue()
 
     /**
      * current cumulative score
