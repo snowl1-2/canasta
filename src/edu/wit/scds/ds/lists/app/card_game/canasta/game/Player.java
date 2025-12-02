@@ -27,7 +27,6 @@
  * @formatter:on
  */
 
-
 package edu.wit.scds.ds.lists.app.card_game.canasta.game ;
 
 import static edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank.JOKER ;
@@ -82,7 +81,6 @@ public final class Player
     /** adding point clarifications */
     private int score = 0 ;
     // private int red3CountThisRound = 0 ;
-
 
     /*
      * constructor(s)
@@ -156,7 +154,6 @@ public final class Player
 
         }  // end playACard()
 
-
     /**
      * Remove a specified card from our hand
      *
@@ -173,7 +170,6 @@ public final class Player
         return this.hand.removeCard( cardToThrow ) ;
 
         }  // end playACard()
-
 
     /**
      * Remove a specified card from our hand
@@ -193,7 +189,6 @@ public final class Player
 
         }  // end playACard()
 
-
     /**
      * text describing the contents of the player's hand
      * <p>
@@ -212,7 +207,6 @@ public final class Player
         return this.hand.revealAll().toString() ;
 
         }   // end revealHand()
-
 
     /**
      * text describing the contents of the player's melds
@@ -242,7 +236,6 @@ public final class Player
 
         }   // end revealMelds()
 
-
     /**
      * Remove all cards from our hand and our collected cards
      *
@@ -252,7 +245,6 @@ public final class Player
      */
     public Pile turnInAllCards()
         {
-
         // local temporary class (pile) to hold our cards
         class AllCards extends Pile
             { /* temporary collection */ }
