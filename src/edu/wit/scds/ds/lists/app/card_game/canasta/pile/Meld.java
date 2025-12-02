@@ -212,6 +212,12 @@ public final class Meld extends Pile
                 }
             }
 
+        // If current card is a cap card, return false
+        if ( currentCard.rank == Rank.SEVEN || currentCard.rank == Rank.THREE)
+            {
+            return false ;
+            }
+
         // Continue if previous card is null
         if ( previousCard == null )
             {

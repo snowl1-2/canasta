@@ -33,7 +33,10 @@ package edu.wit.scds.ds.lists.app.card_game.canasta.pile ;
 import static edu.wit.scds.ds.lists.app.card_game.universal_base.support.Orientation.FACE_DOWN ;
 
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Card ;
+import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank;
+import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Deck;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Pile ;
+import edu.wit.scds.ds.lists.app.card_game.universal_base.card.CardBase;
 import edu.wit.scds.ds.lists.app.card_game.universal_base.support.NoCardsException ;
 
 import java.util.Collections ;
@@ -75,6 +78,11 @@ public final class Hand extends Pile
         {
 
         super( FACE_DOWN ) ;
+/*
+        flipAll() ;
+
+        System.out.println(getCapCards().revealAll()) ;
+        System.out.println(getWildCards().revealAll()) ;*/
 
         }	// end no-arg constructor
 
@@ -125,10 +133,47 @@ public final class Hand extends Pile
 
         }  // end removeLowestCard()
 
-    /**
-     * 
-     * @param args
-     */
+    public Hand getWildCards()
+        {
+
+        Card current ;
+        Hand subHand = new Hand() ;
+
+        for (CardBase cardBase : cards)
+            {
+            current = (Card) cardBase ;
+            if (current.rank == Rank.JOKER || current.rank == Rank.TWO)
+                {
+                subHand.addToBottom(current) ;
+                }
+            }
+
+        subHand.sort() ;
+
+        return subHand ;
+
+        }
+
+    public Hand getCapCards()
+        {
+
+        Card current ;
+        Hand subHand = new Hand() ;
+
+        for (CardBase cardBase : cards)
+            {
+            current = (Card) cardBase ;
+            if (current.rank == Rank.SEVEN || current.rank == Rank.THREE)
+                {
+                subHand.addToBottom(current) ;
+                }
+            }
+
+        subHand.sort() ;
+        return subHand ;
+
+        }
+
 
     /**
      * (optional) test driver
@@ -138,7 +183,27 @@ public final class Hand extends Pile
      */
     public static void main( final String[] args )
         {
-        // TODO Auto-generated method stub
+
+        final Stock myStock = new Stock() ;     // should only accept permanent cards
+        final Deck cardSource = new Deck() ;    // contains only permanent cards
+
+        myStock.moveCardsToBottom( cardSource ) ; // I'm genuinely so pissed
+
+        myStock.shuffle() ;
+
+        Hand hand = new Hand();
+
+        System.out.println(hand.revealAll()) ;
+
+        hand.addToTop(myStock.drawTopCard());
+        hand.addToTop(myStock.drawTopCard());
+        hand.addToTop(myStock.drawTopCard());
+        hand.addToTop(myStock.drawTopCard());
+        hand.addToTop(myStock.drawTopCard());
+
+        System.out.println(hand.revealAll()) ;
+
+
 
         }	// end main()
 
