@@ -203,64 +203,6 @@ public final class Meld extends Pile
 
         }
 
-
-
-/*
-        while (this.iterator().hasNext())
-            {
-            // Check each card in the meld
-            currentCard = (Card) this.iterator().next() ;
-            System.out.println(currentCard.toString()) ;*/
-
-            // If current card is joker/2 add to the count
-/*            if ( currentCard.rank == Rank.JOKER || currentCard.rank == Rank.TWO )
-                {
-                if (wildCardCounter == 3)
-                    {
-                    return false;
-                    }
-                else
-                    {
-                    previousCard = currentCard ;
-                    wildCardCounter++ ;
-                    continue ;
-                    }
-                }
-
-            // Continue if previous card is null
-            if ( previousCard == null )
-                {
-                previousCard = currentCard ;
-                continue ;
-                }
-
-            // Continue if previous card is a wildcard
-            if ( previousCard.rank == Rank.JOKER || previousCard.rank == Rank.TWO )
-                {
-                previousCard = currentCard ;
-                continue ;
-                }
-
-            // At this point we've asserted that the previous card isn't a wildcard or null,
-            // and that the current card is not a wildcard
-
-            // Sets the constant card to current card if constant is null
-            if (constantCard == null)
-                {
-                constantCard = currentCard ;
-                previousCard = currentCard ;
-                continue ;
-                }
-
-            // If the constant card's rank does not match the current card's rank, not a valid meld
-            if (!constantCard.rank.equals(currentCard.rank))
-                {
-                return false ;
-                }
-
-            previousCard = currentCard ;
-            }*/
-
         return true ;
 
         } // end validateMeld()
