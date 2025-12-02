@@ -26,12 +26,9 @@
  *
  * @formatter:on
  */
-
-
 package edu.wit.scds.ds.lists.app.card_game.canasta.game ;
 
 import static edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank.JOKER ;
-
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Card ;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank ;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Suit ;
@@ -96,7 +93,7 @@ import java.util.Scanner ;
  * @version 2.0 2025-06-28 track changes to other classes
  * @version 2.1 2025-11-19 validate the deck(s) at the end of the game
  * 
- * @author Your Name
+ * @author Jasmine Bonilla
  * 
  * @version 3.0 2025-11-03 modifications for your implementation
  */
@@ -107,7 +104,7 @@ public final class Canasta
      */
 
     /** can't play with fewer than this many decks at an absolute minimum */
-    private final static int MINIMUM_NUMBER_OF_DECKS = 1 ;
+    private final static int MINIMUM_NUMBER_OF_DECKS = 2 ;
 
     /** can't play with fewer than this many players at an absolute minimum */
     private final static int MINIMUM_PLAYER_COUNT = 3 ;
@@ -276,33 +273,34 @@ public final class Canasta
     
     
     /**
+     * TODO
      * determine the number of cards for each hand
      * 
      * @since 2.0
      */
-    private void configureCardsPerHand()
-        {
+    // private void configureCardsPerHand()
+    //     {
 
-        // get the number of cards per hand
+    //     // get the number of cards per hand
 
-        final int maximumCardsPerHand = this.stock.cardCount() /
-                                        this.numberOfPlayers ;
+    //     final int maximumCardsPerHand = this.stock.cardCount() /
+    //                                     this.numberOfPlayers ;
 
-        do
-            {
-            this.numberOfCardsPerHand = promptForInt( "%nHow many cards per hand (minimum %,d, maximum %,d)?",
-                                                      1,
-                                                      maximumCardsPerHand ) ;
+    //     do
+    //         {
+    //         this.numberOfCardsPerHand = promptForInt( "%nHow many cards per hand (minimum %,d, maximum %,d)?",
+    //                                                   13,
+    //                                                   maximumCardsPerHand ) ;
 
-            if ( !this.running )
-                {
-                return ;
-                }
+    //         if ( !this.running )
+    //             {
+    //             return ;
+    //             }
 
-            }
-        while ( this.numberOfCardsPerHand > maximumCardsPerHand ) ;
+    //         }
+    //     while ( this.numberOfCardsPerHand > maximumCardsPerHand ) ;
         
-        }   // end configureCardsPerHand()
+    //     }   // end configureCardsPerHand()
     
     
     /**
@@ -721,8 +719,8 @@ public final class Canasta
             {
             return ;
             }
-
-        configureCardsPerHand() ;
+        // TODO: this comment is so I can remember to remove the comment slashes if I actually need this
+        // configureCardsPerHand() ;
 
         if ( !this.running )
             {
@@ -905,10 +903,11 @@ public final class Canasta
         
         System.out.printf( """
         
-                           Welcome to Top This!
+                           Welcome to Canasta!
                            
-                           In this game, players will collect melds and the player with the
-                           most melds at the end of the game wins.
+                           In this game, players will create groupings of seven of the same 
+                           card (ex. J, J, J, J, J, J, J) to gain points and the player with 
+                           the most points at the end of the game wins.
                            
                            Respond to any prompt with a period to end the game.
                            

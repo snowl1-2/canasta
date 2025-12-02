@@ -99,8 +99,6 @@ public final class Meld extends Pile
             System.out.println("Not a valid canasta.") ;
             }
         }   // end 1-arg constructor
-
-
     /*
      * testing/debugging
      */
