@@ -106,8 +106,6 @@ public final class Player
     /*
      * public methods
      */
-
-
     /**
      * Add a dealt card to our hand
      *

@@ -102,25 +102,22 @@ public final class Canasta
     /*
      * constants
      */
-
     /** can't play with fewer than this many decks at an absolute minimum */
     private final static int MINIMUM_NUMBER_OF_DECKS = 2 ;
 
     /** can't play with fewer than this many players at an absolute minimum */
     private final static int MINIMUM_PLAYER_COUNT = 3 ;
     
-
     /*
      * data fields
      */
-
     private final List<Player> players ;
     private int numberOfPlayers ;
 
     private int numberOfCardsPerHand ;
-    private int numberOfRounds ;    // can't exceed numberOfCardsPerHand
+    private int stoppingPoint ;    // can't exceed numberOfCardsPerHand
     private int numberOfDecks ;
-
+ 
     private int roundNumber ;
 
     private final Scanner scanner ;
@@ -135,8 +132,6 @@ public final class Canasta
     /*
      * constructors
      */
-
-
     /**
      * set up the game instance
      *
@@ -152,7 +147,7 @@ public final class Canasta
         this.numberOfPlayers = -1 ;
 
         this.numberOfCardsPerHand = -1 ;
-        this.numberOfRounds = -1 ;
+        this.stoppingPoint = -1 ;
 
         this.roundNumber = 0 ;
 
@@ -273,51 +268,27 @@ public final class Canasta
     
     
     /**
-     * TODO
      * determine the number of cards for each hand
      * 
      * @since 2.0
      */
-    // private void configureCardsPerHand()
-    //     {
-
-    //     // get the number of cards per hand
-
-    //     final int maximumCardsPerHand = this.stock.cardCount() /
-    //                                     this.numberOfPlayers ;
-
-    //     do
-    //         {
-    //         this.numberOfCardsPerHand = promptForInt( "%nHow many cards per hand (minimum %,d, maximum %,d)?",
-    //                                                   13,
-    //                                                   maximumCardsPerHand ) ;
-
-    //         if ( !this.running )
-    //             {
-    //             return ;
-    //             }
-
-    //         }
-    //     while ( this.numberOfCardsPerHand > maximumCardsPerHand ) ;
-        
-    //     }   // end configureCardsPerHand()
-    
-    
-    /**
-     * determine the number of rounds to play
-     * 
-     * @since 2.0
-     */
-    private void configureNumberOfRounds()
+    private void configureCardsPerHand()
         {
-    
-        // get the number of rounds to play
+
+        // get the number of cards per hand
+
+        final int maximumCardsPerHand = this.stock.cardCount() /
+                                        this.numberOfPlayers ;
 
         do
             {
-            this.numberOfRounds = promptForInt( "%nHow many rounds (minimum %,d, maximum %,d)?",
-                                                1,
-                                                this.numberOfCardsPerHand ) ;
+                // was this before
+            // this.numberOfCardsPerHand = promptForInt( "%nHow many cards per hand (minimum %,d, maximum %,d)?",
+            //                                           13,
+            //                                           maximumCardsPerHand ) ;
+
+            this.numberOfCardsPerHand = 13;
+            System.out.println("\nYou each start with 13 cards in your hand!");
 
             if ( !this.running )
                 {
@@ -325,8 +296,34 @@ public final class Canasta
                 }
 
             }
+        while ( this.numberOfCardsPerHand > maximumCardsPerHand ) ;
+        
+        }   // end configureCardsPerHand()
+    
+    /**
+     * determine the number of rounds to play
+     * 
+     * @since 2.0
+     */
+    private void configureStoppingPoint()
+        {
+    
+        // get the number of rounds to play
+        // WAS THIS BEFORE!!!
+        do
+            {
+            this.stoppingPoint = promptForInt( "%nHow many points do you want to stop at (minimum 3000, maximum 5000)?") ;
+
+            if ( !this.running )
+                {
+                return ;
+                }
+            }
         // can't play more rounds than there are cards in a player's hand
-        while ( this.numberOfRounds > this.numberOfCardsPerHand ) ;
+        while ( this.stoppingPoint < 3000 ) ;
+            {
+            System.out.println("That is not a valid stopping point. Please enter a number between 3000-5000");
+            }
 
         }   // end configureNumberOfRounds()
     
@@ -419,7 +416,7 @@ public final class Canasta
         
         System.out.printf( "%nAt the end of round %,d of %,d, the standings are:%n",
                            this.roundNumber,
-                           this.numberOfRounds ) ;
+                           this.stoppingPoint ) ;
 
         for ( final Player aPlayer : this.players )
             {
@@ -530,7 +527,7 @@ public final class Canasta
 
         // take turns playing
         for ( this.roundNumber = 1 ;
-              this.roundNumber <= this.numberOfRounds ;
+              this.roundNumber <= this.stoppingPoint ;
               this.roundNumber++ )
             {
 
@@ -549,7 +546,7 @@ public final class Canasta
             
             System.out.printf( "Round %,d of %,d%n",
                                this.roundNumber,
-                               this.numberOfRounds ) ;
+                               this.stoppingPoint ) ;
 
             // (re-)set high card tracking
             Card highCard = null ;
@@ -719,20 +716,18 @@ public final class Canasta
             {
             return ;
             }
-        // TODO: this comment is so I can remember to remove the comment slashes if I actually need this
-        // configureCardsPerHand() ;
+        configureCardsPerHand() ;
 
         if ( !this.running )
             {
             return ;
             }
 
-        configureNumberOfRounds() ;
+        configureStoppingPoint() ;
         
         // we'll begin game play if still running
 
         }   // end setup()
-
 
     /**
      * displays the results of playing the game
