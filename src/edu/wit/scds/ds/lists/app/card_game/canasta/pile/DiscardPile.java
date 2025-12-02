@@ -47,9 +47,9 @@ import edu.wit.scds.ds.lists.app.card_game.universal_base.support.NoCardsExcepti
  * @version 2.0 2025-03-30 track changes to all classes
  * @version 3.0 2025-06-26 track changes to all classes
  * 
- * @author Your Name
+ * @author Lynn Snow
  * 
- * @version 4.0 2025-11-03 modifications for your implementation
+ * @version 4.0 2025-12-01 Implementation
  */
 public final class DiscardPile extends Pile
     {
@@ -115,17 +115,17 @@ public final class DiscardPile extends Pile
 
 
     /**
-     * take the card from the top of the discard pile
+     * take the entire discard pile
      *
-     * @return the top card from the discard pile turned face up
+     * @return the discard pile in its entirety
      *
      * @throws NoCardsException
      *     if the pile is empty
      */
-    public Card takeTopCard() throws NoCardsException
+    public Pile takeDiscardStack() throws NoCardsException
         {
 
-        return super.removeTopCard() ;
+        return super.removeAllCards() ;
 
         }   // end takeTopCard()
 
