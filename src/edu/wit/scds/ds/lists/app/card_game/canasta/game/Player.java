@@ -61,18 +61,15 @@ import java.util.Scanner ;
  * @version 2.0 2025-06-28 track changes to other classes
  * @version 2.1 2025-11-04 track changes to other classes
  * 
- * @author Your Name
+ * @author Jasmine Bonilla
  * 
  * @version 3.0 2025-11-03 modifications for your game
  */
 public final class Player
     {
-
     /*
      * data fields
      */
-
-
     /** the cards that are in-play */
     private final Hand hand ;
 

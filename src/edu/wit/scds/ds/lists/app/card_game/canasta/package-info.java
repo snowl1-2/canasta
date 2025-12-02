@@ -1,5 +1,5 @@
 /**
- * Implementation of the Your Game game
+ * Implementation of the Canasta game
  *
  * @author David M Rosenberg
  *
