@@ -79,6 +79,10 @@ public final class Player
     /** player's name */
     public final String name ;
 
+    /** adding point clarifications */
+    private int score = 0 ;
+    // private int red3CountThisRound = 0 ;
+
 
     /*
      * constructor(s)
@@ -298,11 +302,196 @@ public final class Player
 
         }   // end cardsWon()
 
+    /**
+     * New helper APIs used by driver
+    */
+   /**
+    * receive all cards from a pile (e.g. when picking up discard pile)
+    * 
+    * @param p the pile to receive (will be moved into hand)
+    */
+   public void receiveCards( final Pile p )
+        {
 
+        this.hand.moveCardsToBottom(p);
+        this.hand.sort() ;
+
+        } // end receiveCards()
+    
+    /**
+     * Test whether the hand contains all the provided cards
+     * 
+     * @param cards list of cards to check
+     * @return true if present
+     */
+    public boolean handContainsAll( final List<Card> cards )
+        {
+        return this.hand.containsAllCards(cards) ;
+        } // end handContainsAll()
+    
+    /**
+     * count how many cards of a given rank are in the hand
+     * 
+     * @param r the rank
+     * @return count
+     */
+    public int countRankInHand( final Rank r)
+        {
+        return this.hand.countRank(r) ;
+        } // end countRankInHand
+
+    /**
+     * remove a specific card from our hand (wraps existing play a card)
+     * 
+     * @param c the card to remove
+     * @return the card removed or null
+     */
+    public Card removeCardFromHand( final Card c)
+        {
+        return playACard(c) ;
+        } // end removeCardFromHand
+
+    /**
+     * find a matching card in hand (returns reference to card present) or null
+     * 
+     * @param sample sample card
+     * @return matching card reference or null
+     */
+    public Card findMatchingCardInHand( final Card sample )
+        {
+        return this.hand.findMatchingCard( sample ) ;
+        } // end findMatchingCardInHand()
+
+    /**
+     * is the hand empty?
+     * 
+     * @return true if not cards
+     */
+    public boolean handIsEmpty()
+        {
+        return this.hand.isEmpty();
+        } // end handIsEmpty
+    
+    /**
+     * does the player have at least one canasta (meld of size >= 7)?
+     * 
+     * @return true if yes
+     */
+    public boolean hasAtLeastOneCanasta()
+        {
+        for ( final Meld m : this.melds )
+            {
+
+            if ( m.isCanasta() )
+                {
+
+                return true;
+
+                }
+
+            } // end for
+
+        return false;    
+
+        } // end hasAtLeastOneCanasta()
+    
+    /**
+     * add a meld to this player's meld (exposed API)
+     * 
+     * @param m meld to add
+     */
+    public void addMeld( final Meld m )
+        {
+        this.melds.add( m ) ;
+        } // end addMeld()
+    
+    /**
+     * Compute and add round points to the player's cumulative score.
+     * 
+     * This is a simplified, complete tally:
+     * - sum card values for all meld cards
+     * - add canasta bonuses: clean +500, dirty +300
+     * - red 3 bonus counted via red3CountThisRound (this is simplistic; adapt if you track red3s per meld)
+     * - subtract points for cards left in hand
+     */
+    public void tallyRoundPoints()
+        {
+        int roundPoints = 0;
+
+        // points from melds
+        for (final Meld m : this.melds )
+            {
+            //sum values of cards in this meld
+            for ( final Card c : m.getAllCards() )
+                {
+                final Rank r = c.getRank() ;
+                roundPoints += cardPointValue ( r ) ;
+                } // end for
+            // canasta bonuses
+            if ( m.isCanasta() )
+                {
+                if ( m.countWildCards() == 0)
+                    {
+                    roundPoints += 500 ;
+                    }
+                else
+                    {
+                    roundPoints += 300 ;
+                    } 
+                } 
+            } // end for
+        
+        // red 3 bonus (basic handling): +100 per red 3 collected this round
+        roundPoints += ( this.red3countThisRound * 100 ) ;
+
+        // subtract points for cards left in hand (pentalty)
+        for ( final Card c : this.hand.getAllCards() )
+            {
+            roundPoints -= cardPointValue( c.getRank() ) ;
+            }
+        this.score +=roundPoints ;
+
+        // reset round specific counters
+        this.red3CountThisRound = 0 ;
+
+        } // end tallyRoundPoints()
+    
+    private static int cardPointValue( final Rank r )
+        {
+        // typical Canasta values (adapt as needed for the rules doc)
+        return switch ( r )
+            {
+            case JOKER -> 50 ;
+            case ACE -> 20 ;
+            case TWO -> 20 ;
+            case KING, QUEEN, JACK, TEN, NINE, EIGHT -> 10 ;
+            case SEVEN, SIX, FIVE, FOUR -> 5 ;
+            case THREE -> 5 ; // black 3 is generally 5; red 3s handled as bonuses elsewhere
+            default -> 0 ;
+            } ;
+        } // end cardPointValue()
+
+    /**
+     * current cumulative score
+     * 
+     * @return score
+     */
+    public int getScore()
+        {
+        return this.score ;
+        } // end getScore()
+
+    /**
+     * wrapper for end of round scoring flow
+     */
+    public void scoreRoundEnd()
+        {
+        tallyRoundPoints();
+        } // end scoreRoundEnd()
+        
     /*
      * utility methods
      */
-
 
     @Override
     public String toString()
