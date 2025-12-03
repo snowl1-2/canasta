@@ -27,7 +27,6 @@
  * @formatter:on
  */
 
-
 package edu.wit.scds.ds.lists.app.card_game.canasta.pile ;
 
 import static edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank.* ;
@@ -37,7 +36,6 @@ import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Card ;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Deck ;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Pile ;
 import edu.wit.scds.ds.lists.app.card_game.universal_base.support.NoCardsException ;
-
 /**
  * Representation of a stock of cards
  * <p>
@@ -65,17 +63,14 @@ public final class Stock extends Pile
      */
     // none
 
-
     /*
      * data fields
      */
     // none
 
-
     /*
      * constructors
      */
-
 
     /**
      * Initialize a stock of {@code Cards} with the cards face-down

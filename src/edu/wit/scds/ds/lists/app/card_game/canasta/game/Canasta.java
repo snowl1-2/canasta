@@ -544,9 +544,9 @@ public final class Canasta
 
             displayDivider() ;
             
-            System.out.printf( "Round %,d of %,d%n",
-                               this.roundNumber,
-                               this.stoppingPoint ) ;
+            // System.out.printf( "Round %,d of %,d%n",
+            //                    this.roundNumber,
+            //                    this.stoppingPoint ) ;
 
             // (re-)set high card tracking
             Card highCard = null ;

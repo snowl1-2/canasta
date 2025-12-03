@@ -173,6 +173,17 @@ public final class Hand extends Pile
         return subHand ;
 
         }
+    public java.util.List<Card> getAllCards()
+        {
+        java.util.List<Card> result = new java.util.ArrayList<>();
+
+        for (CardBase cb : this.cards)
+            {
+            result.add((Card) cb);
+            }
+
+        return result;
+        }
 
 
     /**
