@@ -27,7 +27,6 @@
  * @formatter:on
  */
 
-
 package edu.wit.scds.ds.lists.app.card_game.canasta.game ;
 
 import static edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank.JOKER ;
@@ -82,7 +81,6 @@ public final class Player
     /** adding point clarifications */
     private int score = 0 ;
     // private int red3CountThisRound = 0 ;
-
 
     /*
      * constructor(s)
@@ -156,7 +154,6 @@ public final class Player
 
         }  // end playACard()
 
-
     /**
      * Remove a specified card from our hand
      *
@@ -173,7 +170,6 @@ public final class Player
         return this.hand.removeCard( cardToThrow ) ;
 
         }  // end playACard()
-
 
     /**
      * Remove a specified card from our hand
@@ -193,7 +189,6 @@ public final class Player
 
         }  // end playACard()
 
-
     /**
      * text describing the contents of the player's hand
      * <p>
@@ -212,7 +207,6 @@ public final class Player
         return this.hand.revealAll().toString() ;
 
         }   // end revealHand()
-
 
     /**
      * text describing the contents of the player's melds
@@ -242,7 +236,6 @@ public final class Player
 
         }   // end revealMelds()
 
-
     /**
      * Remove all cards from our hand and our collected cards
      *
@@ -252,7 +245,6 @@ public final class Player
      */
     public Pile turnInAllCards()
         {
-
         // local temporary class (pile) to hold our cards
         class AllCards extends Pile
             { /* temporary collection */ }
@@ -405,71 +397,95 @@ public final class Player
         this.melds.add( m ) ;
         } // end addMeld()
     
-    /**
-     * Compute and add round points to the player's cumulative score.
-     * 
-     * This is a simplified, complete tally:
-     * - sum card values for all meld cards
-     * - add canasta bonuses: clean +500, dirty +300
-     * - red 3 bonus counted via red3CountThisRound (this is simplistic; adapt if you track red3s per meld)
-     * - subtract points for cards left in hand
+        /**
+     * Compute and apply this player's score at the end of a round.
+     * Uses:
+     * - Card point values from the rules
+     * - Canasta bonuses (clean vs dirty)
+     * - Penalty for cards left in hand
+     *
+     * Red 3 (+/- 100) is left as a hook/TODO because it depends on how you
+     * track when Red 3s are laid vs when the round ends.
      */
     public void tallyRoundPoints()
         {
-        // int roundPoints = 0;
+        int roundPoints = 0;
 
-        // // points from melds
-        // for (final Meld m : this.melds )
-        //     {
-        //     //sum values of cards in this meld
-        //     for ( final Card c : m.getAllCards() )
-        //         {
-        //         final Rank r = c.getRank() ;
-        //         roundPoints += cardPointValue ( r ) ;
-        //         } // end for
-        //     // canasta bonuses
-        //     if ( m.isCanasta() )
-        //         {
-        //         if ( m.countWildCards() == 0)
-        //             {
-        //             roundPoints += 500 ;
-        //             }
-        //         else
-        //             {
-        //             roundPoints += 300 ;
-        //             } 
-        //         } 
-        //     } // end for
-        
-        // // red 3 bonus (basic handling): +100 per red 3 collected this round
-        // roundPoints += ( this.red3countThisRound * 100 ) ;
+        // 1. Points from melds + canasta bonuses
+        for (final Meld m : this.melds)
+            {
+            // sum values of cards in this meld
+            for (final Card c : m.getAllCards())
+                {
+                roundPoints += cardPointValue(c.rank);
+                }
 
-        // // subtract points for cards left in hand (pentalty)
-        // for ( final Card c : this.hand.getAllCards() )
-        //     {
-        //     roundPoints -= cardPointValue( c.getRank() ) ;
-        //     }
-        // this.score +=roundPoints ;
 
-        // // reset round specific counters
-        // this.red3CountThisRound = 0 ;
+            // canasta bonuses
+            if (m.isCanasta())
+                {
+                if (m.countWildCards() == 0)
+                    {
+                    // clean canasta (red on top) = 500
+                    roundPoints += 500;
+                    }
+                else
+                    {
+                    // dirty canasta (black on top) = 300
+                    roundPoints += 300;
+                    }
+                }
+            }
 
+        // 2. Red 3 bonus/penalty (from rules doc)
+        //
+        // Your rules say:
+        //   - Red 3 = +100 IF you close a canasta before the end of the round
+        //   - Otherwise = -100
+        //
+        // To implement this exactly, you need to track how many red 3s this
+        // player has "for this round" and whether they successfully went out.
+        // That requires more state than is currently in this class, so here is
+        // where you'd plug that logic in once you track it:
+        //
+        //   roundPoints += (red3CountThisRound * 100 or -100 depending on outcome);
+        //
+        // For now, this is left as a TODO hook.
+
+        // 3. Subtract points for cards left in hand (penalty)
+        for (final Card c : this.hand.getAllCards())
+            {
+            roundPoints -= cardPointValue(c.rank);
+            }
+
+        // 4. Apply to cumulative score
+        this.score += roundPoints;
         } // end tallyRoundPoints()
+
     
-    // private static int cardPointValue( final Rank r )
-    //     {
-    //     // typical Canasta values (adapt as needed for the rules doc)
-    //     return switch ( r )
-    //         {
-    //         case JOKER -> 50 ;
-    //         case ACE -> 20 ;
-    //         case TWO -> 20 ;
-    //         case KING, QUEEN, JACK, TEN, NINE, EIGHT -> 10 ;
-    //         case SEVEN, SIX, FIVE, FOUR -> 5 ;
-    //         case THREE -> 5 ; // black 3 is generally 5; red 3s handled as bonuses elsewhere
-    //         default -> 0 ;
-    //         } ;
-    //     } // end cardPointValue()
+        /**
+     * Point values per card rank based on the project rules:
+     *
+     * 3–7  -> 5 points
+     * 8–K  -> 10 points
+     * 2, A -> 20 points
+     * Joker-> 50 points
+     *
+     * (Red 3 special +/– 100 is handled separately as a bonus/penalty, not here.)
+     */
+    private static int cardPointValue(final Rank r)
+        {
+        return switch (r)
+            {
+            case JOKER -> 50;
+            case ACE  -> 20;
+            case TWO  -> 20;
+            case KING, QUEEN, JACK, TEN, NINE, EIGHT -> 10;
+            case SEVEN, SIX, FIVE, FOUR, THREE       -> 5;
+            default -> 0;
+            };
+        } // end cardPointValue()
+
 
     /**
      * current cumulative score
