@@ -65,6 +65,7 @@ public final class Meld extends Pile
      */
     /** by default, cards added to a meld will be turned face up */
     private final static Orientation DEFAULT_CARD_ORIENTATION = FACE_UP ;
+    private boolean isDirty = false;
 
 
     /*
@@ -99,7 +100,7 @@ public final class Meld extends Pile
         if (!validateMeld())
             {
             super.removeAll() ;
-            System.out.println("Not a valid canasta.") ;
+            System.out.println("Not a valid meld.");
             }
         }   // end 1-arg constructor
     
@@ -107,24 +108,6 @@ public final class Meld extends Pile
      * helper methods for Canasta rules & scoring
      */
 
-    /**
-     * count wild cards (Joker or 2) in this meld
-     * 
-     * @return number of wild cards
-     */
-    // public int countWildCards()
-    //     {
-    //     int count = 0 ;
-    //     for ( final Card c : super.cards )
-    //         {
-    //         // final Rank r = c.getRank() ;
-    //         if ( r == Rank.JOKER || r == Rank.TWO )
-    //             {
-    //             count++;
-    //             }
-    //         return count ;
-    //         }
-    //     }
     /**
      * is this meld a canasta (7 or more cards)
      * 
@@ -179,9 +162,6 @@ public final class Meld extends Pile
         hand.addToBottom(myStock.removeCardAt(11));
         hand.addToBottom(myStock.removeCardAt(11));
         hand.addToBottom(myStock.removeCardAt(11));
-        //hand.addToBottom(myStock.removeCardAt(5));
-        //hand.addToBottom(myStock.removeCardAt(5));
-        //discardPile.addToBottom(myStock.removeCardAt(5));
 
          Meld meld = new Meld(hand) ;
 
@@ -219,6 +199,7 @@ public final class Meld extends Pile
         if ( r == Rank.JOKER || r == Rank.TWO )
             {
             wildCardCount++;
+            this.isDirty = true;
             if (wildCardCount >= 4)
                 {
                 return false;
@@ -237,8 +218,7 @@ public final class Meld extends Pile
         if (baseRank == null)
             {
             baseRank = r;
-            }
-        else if (r != baseRank)
+            } else if (r != baseRank)
             {
             // different non-wild rank → invalid
             return false;
@@ -275,6 +255,7 @@ public final class Meld extends Pile
      */
     public int countWildCards()
     {
+
     int count = 0;
 
     for (CardBase cb : this.cards)
@@ -289,7 +270,20 @@ public final class Meld extends Pile
         }
 
     return count;
+
     }
+
+    /**
+     * Returns a boolean if a meld is dirty
+     *
+     * @return boolean
+     */
+    public boolean isDirty()
+        {
+
+        return this.isDirty;
+
+        }
 
  
 

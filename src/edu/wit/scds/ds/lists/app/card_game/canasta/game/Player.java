@@ -28,8 +28,7 @@
  */
 
 package edu.wit.scds.ds.lists.app.card_game.canasta.game ;
-
-import static edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank.JOKER ;
+// import static edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank.JOKER ;
 
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Card ;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Card.CompareOn ;
@@ -37,6 +36,7 @@ import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank ;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Suit ;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Deck ;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Pile ;
+import edu.wit.scds.ds.lists.app.card_game.universal_base.card.CardBase;
 import edu.wit.scds.ds.lists.app.card_game.universal_base.support.NoCardsException ;
 import edu.wit.scds.ds.lists.app.card_game.canasta.pile.Hand ;
 import edu.wit.scds.ds.lists.app.card_game.canasta.pile.Meld ;
@@ -48,6 +48,8 @@ import java.util.ArrayList ;
 import java.util.List ;
 import java.util.Random ;
 import java.util.Scanner ;
+
+import static edu.wit.scds.ds.lists.app.card_game.canasta.game.PointValue.*;
 
 /**
  * Representation of a player
@@ -79,8 +81,7 @@ public final class Player
     public final String name ;
 
     /** adding point clarifications */
-    private int score = 0 ;
-    // private int red3CountThisRound = 0 ;
+    private int totalPoints;
 
     /*
      * constructor(s)
@@ -309,28 +310,6 @@ public final class Player
         this.hand.sort() ;
 
         } // end receiveCards()
-    
-    /**
-     * Test whether the hand contains all the provided cards
-     * 
-     * @param cards list of cards to check
-     * @return true if present
-     */
-    // public boolean handContainsAll( final List<Card> cards )
-    //     {
-    //     return this.hand.containsAllCards(cards) ;
-    //     } // end handContainsAll()
-    
-    /**
-     * count how many cards of a given rank are in the hand
-     * 
-     * @param r the rank
-     * @return count
-     */
-    // public int countRankInHand( final Rank r)
-    //     {
-    //     return this.hand.countRank(r) ;
-    //     } // end countRankInHand
 
     /**
      * remove a specific card from our hand (wraps existing play a card)
@@ -340,19 +319,10 @@ public final class Player
      */
     public Card removeCardFromHand( final Card c)
         {
-        return playACard(c) ;
-        } // end removeCardFromHand
 
-    /**
-     * find a matching card in hand (returns reference to card present) or null
-     * 
-     * @param sample sample card
-     * @return matching card reference or null
-     */
-    // public Card findMatchingCardInHand( final Card sample )
-    //     {
-    //     return this.hand.findMatchingCard( sample ) ;
-    //     } // end findMatchingCardInHand()
+        return playACard(c) ;
+
+        } // end removeCardFromHand
 
     /**
      * is the hand empty?
@@ -361,7 +331,9 @@ public final class Player
      */
     public boolean handIsEmpty()
         {
+
         return this.hand.isEmpty();
+
         } // end handIsEmpty
     
     /**
@@ -371,6 +343,7 @@ public final class Player
      */
     public boolean hasAtLeastOneCanasta()
         {
+
         for ( final Meld m : this.melds )
             {
 
@@ -394,115 +367,19 @@ public final class Player
      */
     public void addMeld( final Meld m )
         {
+
         this.melds.add( m ) ;
+
         } // end addMeld()
-    
-        /**
-     * Compute and apply this player's score at the end of a round.
-     * Uses:
-     * - Card point values from the rules
-     * - Canasta bonuses (clean vs dirty)
-     * - Penalty for cards left in hand
-     *
-     * Red 3 (+/- 100) is left as a hook/TODO because it depends on how you
-     * track when Red 3s are laid vs when the round ends.
-     */
-    public void tallyRoundPoints()
-        {
-        int roundPoints = 0;
-
-        // 1. Points from melds + canasta bonuses
-        for (final Meld m : this.melds)
-            {
-            // sum values of cards in this meld
-            for (final Card c : m.getAllCards())
-                {
-                roundPoints += cardPointValue(c.rank);
-                }
-
-
-            // canasta bonuses
-            if (m.isCanasta())
-                {
-                if (m.countWildCards() == 0)
-                    {
-                    // clean canasta (red on top) = 500
-                    roundPoints += 500;
-                    }
-                else
-                    {
-                    // dirty canasta (black on top) = 300
-                    roundPoints += 300;
-                    }
-                }
-            }
-
-        // 2. Red 3 bonus/penalty (from rules doc)
-        //
-        // Your rules say:
-        //   - Red 3 = +100 IF you close a canasta before the end of the round
-        //   - Otherwise = -100
-        //
-        // To implement this exactly, you need to track how many red 3s this
-        // player has "for this round" and whether they successfully went out.
-        // That requires more state than is currently in this class, so here is
-        // where you'd plug that logic in once you track it:
-        //
-        //   roundPoints += (red3CountThisRound * 100 or -100 depending on outcome);
-        //
-        // For now, this is left as a TODO hook.
-
-        // 3. Subtract points for cards left in hand (penalty)
-        for (final Card c : this.hand.getAllCards())
-            {
-            roundPoints -= cardPointValue(c.rank);
-            }
-
-        // 4. Apply to cumulative score
-        this.score += roundPoints;
-        } // end tallyRoundPoints()
-
-    
-        /**
-     * Point values per card rank based on the project rules:
-     *
-     * 3–7  -> 5 points
-     * 8–K  -> 10 points
-     * 2, A -> 20 points
-     * Joker-> 50 points
-     *
-     * (Red 3 special +/– 100 is handled separately as a bonus/penalty, not here.)
-     */
-    private static int cardPointValue(final Rank r)
-        {
-        return switch (r)
-            {
-            case JOKER -> 50;
-            case ACE  -> 20;
-            case TWO  -> 20;
-            case KING, QUEEN, JACK, TEN, NINE, EIGHT -> 10;
-            case SEVEN, SIX, FIVE, FOUR, THREE       -> 5;
-            default -> 0;
-            };
-        } // end cardPointValue()
-
-
-    /**
-     * current cumulative score
-     * 
-     * @return score
-     */
-    public int getScore()
-        {
-        return this.score ;
-        } // end getScore()
 
     /**
      * wrapper for end of round scoring flow
      */
     public void scoreRoundEnd()
         {
-        tallyRoundPoints();
+
+        evaluatePerRound();
+
         } // end scoreRoundEnd()
         
     /*
@@ -524,11 +401,232 @@ public final class Player
 
         }   // end toString()
 
+    /*
+     * Points functionality
+     */
+
+    /**
+     * Point values based on game rules:
+     *
+     * <ul>
+     *     <li>Black 3 – 7  -> 5 points</li>
+     *     <li>8 – K  -> 10 points</li>
+     *     <li>2 and A -> 20 points</li>
+     *     <li>Joker -> 50 points</li>
+     *     <li>Red Three -> 100</li>
+     *     <li>Dirty Meld -> 300</li>
+     *     <li>Meld -> 500</li>
+     * </ul>
+     *
+     * @param value a constant from enum PointValue
+     */
+    public static int getPointValue(PointValue value)
+        {
+
+        return switch (value)
+            {
+
+            case BTHREE_TO_SEVEN -> 5;
+            case EIGHT_TO_KING -> 10;
+            case ACE_AND_TWO -> 20;
+            case JOKER -> 50;
+            case RTHREE -> 100;
+            case DIRTY_MELD -> 300;
+            case MELD -> 500;
+
+            };
+
+        } // end getPointValue()
+
+    /**
+     * <p>
+     * Adds points to the player's total amount
+     * of points
+     * </p>
+     *
+     * <h5>
+     * INSTRUCTIONS TO USE THIS METHOD:
+     * </h5>
+     *
+     * <p>
+     * Use the getPointValue() method to insert
+     * how many points will be added. Any constants
+     * (such as BTHREE_TO_SEVEN) that are a range
+     * INCLUDE the end points.
+     * </p>
+     *
+     * @param points amount of points added via getPointValue()
+     *
+     */
+    public void add(int points)
+        {
+
+        if (verifyPoints(points))
+            {
+            this.totalPoints += points;
+            } else
+            {
+            System.out.println("Points cannot be added; amount of points is not legal");
+            }
+
+        } // end add( points )
+
+    /**
+     * <p>
+     * Subtracts points from the player's total
+     * amount of points
+     * </p>
+     *
+     * <h5>
+     * INSTRUCTIONS TO USE THIS METHOD:
+     * </h5>
+     *
+     * <p>
+     * Use the getPointValue() method to insert
+     * how many points will be subtracted. Any
+     * constants (such as BTHREE_TO_SEVEN) that
+     * are a range INCLUDE the end points.
+     * </p>
+     *
+     * @param points amount of points subtracted via getPointValue()
+     *
+     */
+    public void subtract(int points)
+        {
+
+
+        if (verifyPoints(points))
+            {
+            this.totalPoints -= points;
+            } else
+            {
+            System.out.println("Points cannot be subtracted; amount of points is not legal.");
+            }
+
+
+        } // end subtract( points )
+
+    /**
+     *
+     * @return total amount of points the player has
+     */
+    public int getScore()
+        {
+
+        return this.totalPoints;
+
+        } // end getScore()
+
+    /**
+     * Evaluates how many points the player has at the end of the game
+     */
+    public void evaluateAtEnd()
+        {
+
+        this.totalPoints = 0;
+
+        // Adding points per each meld (both completed and played)
+        for (final Meld m : this.melds)
+            {
+            if (m.isCanasta())
+                {
+                if (m.isDirty())
+                    {
+                    add(getPointValue(DIRTY_MELD));
+                    } else
+                    {
+                    add(getPointValue(MELD));
+                    }
+                } else
+                {
+                for (Card c : m.getAllCards())
+                    {
+                    switch (c.rank)
+                        {
+                        case ACE, TWO -> add(getPointValue(ACE_AND_TWO));
+                        case THREE, FOUR, FIVE, SIX, SEVEN -> add(getPointValue(BTHREE_TO_SEVEN));
+                        case EIGHT, NINE, TEN, JACK, QUEEN, KING -> add(getPointValue(EIGHT_TO_KING));
+                        case JOKER -> add(getPointValue(JOKER));
+                        }
+                    }
+                }
+            }
+
+        // Subtracting points if any cards are in the player's hand
+        if (!this.hand.isEmpty())
+            {
+            for (Card card : this.hand.getAllCards())
+                {
+
+                switch (card.rank)
+                    {
+                    case ACE, TWO -> subtract(getPointValue(ACE_AND_TWO));
+                    case THREE, FOUR, FIVE, SIX, SEVEN -> subtract(getPointValue(BTHREE_TO_SEVEN));
+                    case EIGHT, NINE, TEN, JACK, QUEEN, KING -> subtract(getPointValue(EIGHT_TO_KING));
+                    case JOKER -> subtract(getPointValue(JOKER));
+                    }
+                }
+            }
+
+        } // end evaluateAtEnd()
+
+    /**
+     * Evaluates how many points the player has at the end of
+     * each round
+     */
+    public void evaluatePerRound()
+        {
+
+        this.totalPoints = 0;
+
+        // Adding points per each meld (both completed and played)
+        for (final Meld m : this.melds)
+            {
+            if (m.isCanasta())
+                {
+                if (m.isDirty())
+                    {
+                    add(getPointValue(DIRTY_MELD));
+                    } else
+                    {
+                    add(getPointValue(MELD));
+                    }
+                } else
+                {
+                for (Card c : m.getAllCards())
+                    {
+                    switch (c.rank)
+                        {
+                        case ACE, TWO -> add(getPointValue(ACE_AND_TWO));
+                        case THREE, FOUR, FIVE, SIX, SEVEN -> add(getPointValue(BTHREE_TO_SEVEN));
+                        case EIGHT, NINE, TEN, JACK, QUEEN, KING -> add(getPointValue(EIGHT_TO_KING));
+                        case JOKER -> add(getPointValue(JOKER));
+                        }
+                    }
+                }
+            }
+
+        } // end evaluatePerRound()
+
+    /**
+     * Verifies that the points added/subtracted are legal
+     *
+     * @param points amount of points to add/subtract
+     * @return boolean if the points added are legal
+     */
+    private boolean verifyPoints(int points)
+        {
+        return switch (points)
+            {
+            case 5, 10, 20, 50, 100, 300, 500 -> true;
+            default -> false;
+            };
+        } // end verifyPoints()
+
 
     /*
      * testing/debugging
      */
-
 
     /**
      * (optional) test driver
@@ -549,10 +647,10 @@ public final class Player
         final Stock testStock = new Stock( testDeck ) ;
 
         // put any jokers back in the deck
-        final Card lookupJoker = new Card( JOKER ) ;
+        final Card lookupJoker = new Card( Rank.JOKER ) ;
         Card foundJoker ;
 
-        while ( ( foundJoker = testStock.removeCard( lookupJoker ) ) != null )
+        while ((foundJoker = testStock.removeCard(lookupJoker)) != null )
             {
             testDeck.addToBottom( foundJoker ) ;
             }
