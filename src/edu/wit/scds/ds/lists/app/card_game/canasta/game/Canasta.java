@@ -277,18 +277,14 @@ public final class Canasta
 
         // get the number of cards per hand
 
-        final int maximumCardsPerHand = this.stock.cardCount() /
-                                        this.numberOfPlayers ;
+        final int maximumCardsPerHand = 13 ;
 
         do
             {
                 // was this before
-            // this.numberOfCardsPerHand = promptForInt( "%nHow many cards per hand (minimum %,d, maximum %,d)?",
-            //                                           13,
-            //                                           maximumCardsPerHand ) ;
-
-            this.numberOfCardsPerHand = 11;
-            System.out.println("\nYou each start with 11 cards in your hand!");
+             this.numberOfCardsPerHand = promptForInt( "%nHow many cards per hand (minimum %,d, maximum %,d)?",
+                                                       11,
+                                                       maximumCardsPerHand ) ;
 
             if ( !this.running )
                 {
@@ -308,8 +304,7 @@ public final class Canasta
     private void configureStoppingPoint()
         {
     
-        // get the number of rounds to play
-        // WAS THIS BEFORE!!!
+        // find stopping point based on number of points, not configured number of rounds
         do
             {
             this.stoppingPoint = promptForInt( "%nHow many points do you want to stop at (minimum 3000, maximum 5000)?") ;
@@ -502,8 +497,8 @@ public final class Canasta
         this.running = true ;
 
         displayDivider() ;
-        
-        System.out.printf( """
+
+        System.out.print( """
                            To specify a card, type RS (Rank and Suit) then press enter.
                            
                            If R or S is ?, we'll display the options for Rank or Suit, respectively.
@@ -512,14 +507,18 @@ public final class Canasta
                            If R or S is ., the game will end.
                            If your selection is ., the game will end.
                            
+                           Remember: 2's and Jokers are wild cards, 3's and 7's are lid cards!
+                           
                            Have fun!
                            """ ) ;
 
-        
-        // deal initial hands
+
+        // deal 11-13 cards to each player and flip one to the discard pile
         dealHands() ;
 
-        // assertion: all players have the same number of cards in their hand
+        // BEGIN CANASTA ROUND
+        boolean roundActive = true ;
+        int currentPlayerIndex = 0 ;
 
         int firstPlayerThisRound = 0 ;
 
@@ -543,7 +542,7 @@ public final class Canasta
 
 
             displayDivider() ;
-            
+
             // System.out.printf( "Round %,d of %,d%n",
             //                    this.roundNumber,
             //                    this.stoppingPoint ) ;
@@ -579,11 +578,11 @@ public final class Canasta
                     }
 
                 cardsInPlay.addToBottom( cardToPlay ) ;
-                
-                
+
+
                 // NOTE the determination of highest card and winner(s) should follow card selection
                 // by all players but this is simpler for demonstration purposes
-                
+
 
                 // is this the highest card so far?
                 if ( highCardHolders.isEmpty() )
@@ -616,7 +615,7 @@ public final class Canasta
                     }
 
                 }   // end for
-            
+
             // reveal all the cards that were played this round
             cardsInPlay.revealAll() ;
 
@@ -955,104 +954,105 @@ public final class Canasta
         Suit suit = null ;
         Rank rank = null ;
 
-        do
-            {
-
-            String input ;
-
-            displayPrompt( prompt, arguments ) ;
-
-            input = null ;
-
-            
-            // end if no input available
-            if ( !this.scanner.hasNext( ) )
-                {
-                this.running = false ;
-
-                return null ;
-                }
-            
-            
-            // get a line, remove all whitespace, convert to uppercase
-            input = this.scanner.nextLine()
-                                .replace( " ", "" )
-                                .replace( "\t", "" )
-                                .toUpperCase() ;
-
-            
-            // no problem if no input, try again
-            if ( input.length() == 0 )
-                {
-                continue ;
-                }
-
-            
-            // valid specifications are exactly 1 or 2 characters
-            if ( input.length() > 2 )
-                {
-                System.out.printf( "%nValid responses must have 1 or 2 characters, please try again" ) ;
-
-                continue ;
-                }
-            
-
-            // valid 1-character inputs:
-            // - 'R' for Joker
-            // - '?' display help then re-prompt
-            // - '.' to exit
-            if ( input.length() == 1 )
+            label:
+            do
                 {
 
-                if ( ".".equals( input ) )  // quit
+                String input ;
+
+                displayPrompt( prompt, arguments ) ;
+
+                input = null ;
+
+
+                // end if no input available
+                if ( !this.scanner.hasNext( ) )
                     {
                     this.running = false ;
 
                     return null ;
                     }
 
-                if ( "?".equals( input ) )  // help
+
+                // get a line, remove all whitespace, convert to uppercase
+                input = this.scanner.nextLine()
+                                    .replace( " ", "" )
+                                    .replace( "\t", "" )
+                                    .toUpperCase() ;
+
+
+                // no problem if no input, try again
+                if ( input.length() == 0 )
                     {
-                    Rank.displayHelp() ;
-                    Suit.displayHelp() ;
+                    continue ;
+                    }
+
+
+                // valid specifications are exactly 1 or 2 characters
+                if ( input.length() > 2 )
+                    {
+                    System.out.printf( "%nValid responses must have 1 or 2 characters, please try again" ) ;
 
                     continue ;
                     }
 
-                if ( "R".equals( input ) )  // JOKER
-                    {
-                    rank = Rank.JOKER ;
-                    suit = Suit.NA ;
 
-                    break ;
+                // valid 1-character inputs:
+                // - 'R' for Joker
+                // - '?' display help then re-prompt
+                // - '.' to exit
+                if ( input.length() == 1 )
+                    {
+
+                        switch (input) {
+                            case ".":
+    // quit
+
+                                this.running = false;
+
+                                return null;
+                            case "?":
+    // help
+
+                                Rank.displayHelp();
+                                Suit.displayHelp();
+
+                                continue;
+                            case "R":
+    // JOKER
+
+                                rank = Rank.JOKER;
+                                suit = Suit.NA;
+
+                                break label;
+                        }
+
                     }
 
+
+                // assertion: input has 2 characters
+
+                // valid specification is RS where R is the rank and S is the suit
+                final String rankElement = input.substring( 0, 1 ) ;
+                final String suitElement = input.substring( 1, 2 ) ;
+
+                // if either is '.', exit
+                if ( ".".equals( rankElement ) || ".".equals( suitElement ) )
+                    {
+                    this.running = false ;
+
+                    return null ;
+                    }
+
+                // either or both might return null
+                rank = Rank.interpretDescription( rankElement ) ;
+                suit = Suit.interpretDescription( suitElement ) ;
+
                 }
-            
+            while ( ( rank == null ) || ( suit == null ) ) ;
 
-            // assertion: input has 2 characters
 
-            // valid specification is RS where R is the rank and S is the suit
-            final String rankElement = input.substring( 0, 1 ) ;
-            final String suitElement = input.substring( 1, 2 ) ;
-
-            // if either is '.', exit
-            if ( ".".equals( rankElement ) || ".".equals( suitElement ) )
-                {
-                this.running = false ;
-
-                return null ;
-                }
-
-            // either or both might return null
-            rank = Rank.interpretDescription( rankElement ) ;
-            suit = Suit.interpretDescription( suitElement ) ;
-
-            }
-        while ( ( rank == null ) || ( suit == null ) ) ;
-        
-        
-        // assertion: we have a rank and a suit
+            // assertion: we have a rank and a suit
 
         return new Card( rank, suit ) ;
 
@@ -1158,7 +1158,7 @@ public final class Canasta
                 }
             
             }
-        while ( "".equals( compressedResponse ) ) ;
+        while (compressedResponse.isEmpty()) ;
 
         // assertion: we have the user's trimmed input (no leading or trailing whitespace
         

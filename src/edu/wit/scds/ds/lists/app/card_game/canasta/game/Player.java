@@ -348,11 +348,13 @@ public final class Player
      * 
      * @param sample sample card
      * @return matching card reference or null
+     *
+     *  TODO actually implement this shit girl
      */
-    // public Card findMatchingCardInHand( final Card sample )
-    //     {
-    //     return this.hand.findMatchingCard( sample ) ;
-    //     } // end findMatchingCardInHand()
+//     public Card findMatchingCardInHand( final Card sample )
+//         {
+//         return this.hand.findMatchingCard( sample ) ;
+//         } // end findMatchingCardInHand()
 
     /**
      * is the hand empty?

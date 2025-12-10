@@ -107,29 +107,6 @@ public final class Meld extends Pile
      * helper methods for Canasta rules & scoring
      */
 
-    /**
-     * count wild cards (Joker or 2) in this meld
-     * 
-     * @return number of wild cards
-     */
-    // public int countWildCards()
-    //     {
-    //     int count = 0 ;
-    //     for ( final Card c : super.cards )
-    //         {
-    //         // final Rank r = c.getRank() ;
-    //         if ( r == Rank.JOKER || r == Rank.TWO )
-    //             {
-    //             count++;
-    //             }
-    //         return count ;
-    //         }
-    //     }
-    /**
-     * is this meld a canasta (7 or more cards)
-     * 
-     * @return true if 7+ cards
-     */
     public boolean isCanasta()
         {
         return super.cardCount() >= 7 ;
