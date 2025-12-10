@@ -174,23 +174,26 @@ public final class Meld extends Pile
 
         System.out.println(myStock.revealAll());
 
-        DiscardPile discardPile = new DiscardPile() ;
+        Hand hand = new Hand() ;
 
-        discardPile.addCard(myStock.removeCardAt(5));
-        discardPile.addToBottom(myStock.removeCardAt(5));
-        discardPile.addToBottom(myStock.removeCardAt(5));
-        discardPile.addToBottom(myStock.removeCardAt(5));
-        discardPile.addToBottom(myStock.removeCardAt(5));
+        hand.addToBottom(myStock.removeCardAt(11));
+        hand.addToBottom(myStock.removeCardAt(11));
+        hand.addToBottom(myStock.removeCardAt(11));
+        //hand.addToBottom(myStock.removeCardAt(5));
+        //hand.addToBottom(myStock.removeCardAt(5));
         //discardPile.addToBottom(myStock.removeCardAt(5));
 
-        // Meld meld = new Meld(discardPile) ;
+         Meld meld = new Meld(hand) ;
+
+         System.out.println(meld.revealAll());
+         System.out.println(myStock.revealAll());
 
 
         }	// end main()
 
         /**
      * Check whether the current pile of cards is a valid Canasta meld
-     * according to the project rules.
+     * according to the official game rules.
      *
      * Constraints:
      * - At least 3 cards
@@ -203,31 +206,27 @@ public final class Meld extends Pile
      */
     private boolean validateMeld()
     {
-    if (this.cardCount() < 3)
-        {
-        return false;
-        }
 
     int wildCardCount = 0;
-    Rank baseRank = null;      // the natural rank all non-wilds must share
+    Rank baseRank = null; // "Common" rank between all cards
 
     for (CardBase cb : this.cards)
         {
         Card c = (Card) cb;
-        Rank r = c.rank;   // <-- field
+        Rank r = c.rank;
 
-        // Wild cards: JOKER or TWO
-        if (r == Rank.JOKER || r == Rank.TWO)
+        // Wild card handler
+        if ( r == Rank.JOKER || r == Rank.TWO )
             {
             wildCardCount++;
-            if (wildCardCount > 3)
+            if (wildCardCount >= 4)
                 {
                 return false;
                 }
             continue;
             }
 
-        // Non-wild cards:
+        // Non-wild card handler
 
         // No melds of 3s
         if (r == Rank.THREE)
@@ -244,7 +243,7 @@ public final class Meld extends Pile
             // different non-wild rank → invalid
             return false;
             }
-        }
+        } // end of foreach loop
 
     // must have at least one non-wild card
     if (baseRank == null)
@@ -252,23 +251,24 @@ public final class Meld extends Pile
         return false;
         }
 
-    // no melds "of 2s" (2s are wild only)
-    if (baseRank == Rank.TWO)
-        {
-        return false;
-        }
-
-    // If the meld is of 7s, wild cards are not allowed in that set
+    // If the meld is of 7s, wild cards are not allowed in that meld
     if (baseRank == Rank.SEVEN && wildCardCount > 0)
         {
         return false;
         }
 
+    // Checks to see if the card count is less than 3
+    if (this.cardCount() < 3)
+        {
+        return false;
+        }
+
     return true;
-    }
+
+    } // end of validateMeld()
 
 
-        /**
+    /**
      * count wild cards (Joker or 2) in this meld
      *
      * @return number of wild cards
