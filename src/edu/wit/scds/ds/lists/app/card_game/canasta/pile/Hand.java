@@ -133,6 +133,12 @@ public final class Hand extends Pile
 
         }  // end removeLowestCard()
 
+    /**
+     * Returns all the wild cards as a separate hand for better readability
+     *
+     * @return Hand
+     */
+
     public Hand getWildCards()
         {
 
@@ -145,6 +151,7 @@ public final class Hand extends Pile
             if (current.rank == Rank.JOKER || current.rank == Rank.TWO)
                 {
                 subHand.addToBottom(current) ;
+                this.removeCard(current) ;
                 }
             }
 
@@ -152,7 +159,13 @@ public final class Hand extends Pile
 
         return subHand ;
 
-        }
+        } // end getWildCards()
+
+    /**
+     * Returns all the cap cards as a separate hand for better readability
+     *
+     * @return Hand
+     */
 
     public Hand getCapCards()
         {
@@ -166,13 +179,18 @@ public final class Hand extends Pile
             if (current.rank == Rank.SEVEN || current.rank == Rank.THREE)
                 {
                 subHand.addToBottom(current) ;
+                this.removeCard(current) ;
                 }
             }
 
         subHand.sort() ;
         return subHand ;
 
-        }
+        } // end of getCapCards()
+
+
+
+
     public java.util.List<Card> getAllCards()
         {
         java.util.List<Card> result = new java.util.ArrayList<>();
