@@ -512,7 +512,6 @@ public final class Canasta
                            Have fun!
                            """ ) ;
 
-
         // deal 11-13 cards to each player and flip one to the discard pile
         dealHands() ;
 
@@ -522,172 +521,170 @@ public final class Canasta
 
         int firstPlayerThisRound = 0 ;
 
-        final List<Player> highCardHolders = new LinkedList<>() ;
-
-        // take turns playing
-        for ( this.roundNumber = 1 ;
-              this.roundNumber <= this.stoppingPoint ;
-              this.roundNumber++ )
+        while ( roundActive && this.running )
             {
+            
+            displayDivider();
 
-            if ( !this.running )
+            Player currentPlayer = this.players.get(currentPlayerIndex) ;
+            System.out.printf("%nit's %s's turn %n", currentPlayer.name) ;
+
+            // Show all hands (assignment requirement: open-hand player)
+            displayAllHands() ;
+
+            // DRAW STEP
+            performDrawStep(currentPlayer) ; 
+            
+            if ( !this.running ) return ;
+
+            // MELD STEP
+            boolean continueMelding = true ; 
+
+            while (continueMelding)
                 {
-                return ;
+                String choice = promptForLine("""
+                        %nWould you like to meld? Type 'new' to create a meld, 'add' too add to a meld, or 'no' to continue:
+                        """) ;
+                if ( !this.running ) return ;
+
+                switch ( choice.toLowerCase() ) 
+                    {
+                    case "new" -> attemptNewMeld(currentPlayer) ;
+                    case "add" -> attemptAddToMeld(currentPlayer) ;
+                    default -> continueMelding = false ;
+                    }
                 }
+            // DISCARD STEP
+            performDiscardStep(currentPlayer) ;
 
-            // make new meld to hold the cards played during this round
-            // cards will be added face down
-            // after all players have taken their turn, the cards will all be turned face up
-            final Pile cardsInPlay = new Meld().setDefaultFaceDown() ;
+            if( !this.running ) return ;
 
-
-            displayDivider() ;
-
-            // System.out.printf( "Round %,d of %,d%n",
-            //                    this.roundNumber,
-            //                    this.stoppingPoint ) ;
-
-            // (re-)set high card tracking
-            Card highCard = null ;
-            highCardHolders.clear() ;
-
-            for ( int i = 0 ; i < this.numberOfPlayers ; i++ )
+            // CHECK GOING OUT
+            if ( playerHasGoneOut( currentPlayer ) )
                 {
-                final int currentPlayerIndex = ( firstPlayerThisRound + i ) %
-                                               this.numberOfPlayers ;
-                final Player currentPlayer = this.players.get( currentPlayerIndex ) ;
-
-                System.out.printf( "%nIt's %s's turn%n", currentPlayer.name ) ;
-
-                Card cardToPlay = null ;
-
-                while ( cardToPlay == null )
-                    {
-                    cardToPlay = promptForCard( "%nChoose a card from %s: ",
-                                                currentPlayer.revealHand() ) ;
-
-                    if ( !this.running )
-                        {
-                        this.stock.moveCardsToBottom( cardsInPlay ) ;
-
-                        return ;
-                        }
-
-                    // cardToPlay is null if the specified card isn't in the player's hand
-                    cardToPlay = currentPlayer.playACard( cardToPlay ) ;
-                    }
-
-                cardsInPlay.addToBottom( cardToPlay ) ;
-
-
-                // NOTE the determination of highest card and winner(s) should follow card selection
-                // by all players but this is simpler for demonstration purposes
-
-
-                // is this the highest card so far?
-                if ( highCardHolders.isEmpty() )
-                    {
-                    // this is the first card so it's highest
-                    highCard = cardToPlay ;
-                    highCardHolders.add( currentPlayer ) ;
-                    }
-                else
-                    {
-                    // we already have at least 1 highest card
-
-                    // we care about rank and suit when comparing cards
-                    final int cardComparison = cardToPlay.compareTo( highCard ) ;
-
-                    if ( cardComparison > 0 )
-                        {
-                        // new high card
-                        highCard = cardToPlay ;
-                        highCardHolders.clear() ;
-                        highCardHolders.add( currentPlayer ) ;
-                        }
-                    else if ( cardComparison == 0 )
-                        {
-                        // duplicate of high card
-                        highCardHolders.add( currentPlayer ) ;
-                        }
-
-                    // otherwise, card is lower than the highest
-                    }
-
-                }   // end for
-
-            // reveal all the cards that were played this round
-            cardsInPlay.revealAll() ;
-
-            displayDivider() ;
-
-            final int highCardHolderCount = highCardHolders.size() ;
-
-            if ( highCardHolderCount == 1 )
-                {
-                // we have a solo winner of this round
-
-                final Player winner = highCardHolders.removeFirst() ;
-
-                System.out.printf( "%s won round %,d with the highest card %s of %s%n",
-                                   winner.name,
-                                   this.roundNumber,
-                                   highCard,
-                                   cardsInPlay ) ;
-
-                // give the winner the cards
-                winner.wonRound( cardsInPlay ) ;
+                roundActive = true ;
+                displayDivider() ;
+                System.out.printf("%s has gone out!%n", currentPlayer.name ) ;
+                roundActive = false ;
+                break ;
                 }
-            else
-                {
-                // multiple winners
-                final StringBuilder highCardHolderNames = new StringBuilder() ;
-                String delimiter = "" ;
+            
+            // ADVANCE TURN
+            currentPlayerIndex = (currentPlayerIndex + 1) % this.numberOfPlayers ;
+            
+            }
 
-                final ListIterator<Player> winnerIterator = highCardHolders.listIterator() ;
+        // ROUND END - SCORING
+        // TODO wait for Lynn's method!
+        displayDivider() ;
+        System.out.println("Round has ended. Scoring...") ;
 
-                while ( winnerIterator.hasNext() )
-                    {
-                    final Player aWinner = winnerIterator.next() ;
+        for ( Player p : this.players )
+            {
+            p.scoreRoundEnd() ;
+            }
 
-                    highCardHolderNames.append( delimiter )
-                                       .append( aWinner.name ) ;
-
-                    winnerIterator.remove() ;
-
-                    if ( highCardHolders.size() == 1 )
-                        {
-                        delimiter = " and " ;
-                        }
-                    else
-                        {
-                        delimiter = ", " ;
-                        }
-
-                    }
-
-                // 2 or more of high card - no winner of this round
-                System.out.printf( "No one won round %,d; %,d player%s, %s, had the highest card %s of %s%n",
-                                   this.roundNumber,
-                                   highCardHolderCount,
-                                   ( highCardHolderCount == 1
-                                       ? ""
-                                       : "s" ),
-                                   highCardHolderNames.toString(),
-                                   highCard,
-                                   cardsInPlay ) ;
-
-                // discard the cards
-                this.discardPile.moveCardsToTop( cardsInPlay ) ;
-                }
-
-            // start the next round with the next player
-            firstPlayerThisRound++ ;
-
-            displayStandings() ;
-            }   // end for(roundNumber)
+        displayStandings() ;
+        
+        // Ask to play again    
+        String again = promptForLine("Play again? (y/n): ") ;
+        if ( again.equalsIgnoreCase("y")) 
+            {
+            resetForNewRound();
+            run();
+            }
+        else 
+            {
+            this.running = false ;
+            }
 
         }   // end run()
+    
+    /**
+     * This method will perform the draw step associated with the Canasta game
+     */
+    private void performDrawStep ( Player p )
+        {
+        String choice = promptForLine("""
+                %nDraw from STOCK (s) or DISCARD (d)
+                """) ;
+        if ( !this.running ) return ;
+
+        if ( choice.equalsIgnoreCase("d") && !this.discardPile.isEmpty() )
+            {
+            // TODO implement your discard-pile pickup rules
+            p.receiveCards( this.discardPile ) ;
+            this.discardPile.clear() ;
+            }
+        else 
+            {
+            // Stock draw
+            Card drawn = this.stock.drawTopCard() ;
+            drawn.reveal() ;
+            p.dealtACard( drawn ) ;
+            }
+
+        }
+
+    /**
+     * This method will perform the Discard Step associated with Canasta
+     */
+    private void performDiscardStep ( Player p )
+        {
+        
+        Card toDiscard = null ;
+
+        while ( toDiscard == null )
+            {
+
+            toDiscard = promptForCard("%nChoose a card to discard from %s: ", p.revealHand() ) ;
+
+            if ( !this.running ) return ;
+
+            // attempt to remove it
+            toDiscard = p.playACard( toDiscard ) ;
+            }
+            
+            this.discardPile.addToTop( toDiscard ) ;
+            System.out.printf("%s discarded %s%n", p.name, toDiscard ) ;
+            
+        }
+    
+    /**
+     * This method will allow for a player to try to make a new
+     * Canasta if applicable
+     */
+    private void attemptNewMeld( Player p ) 
+        {
+        // TODO: ask for cards for new meld, remove from hand, validate meld, add to p.melds
+        }
+
+    /**
+     * This method will attempt to add to a meld:
+     */
+    private void attemptAddToMeld(Player p) 
+        {
+        // TODO: choose meld, choose card(s), validate, add
+        }
+    
+    private boolean playerHasGoneOut(Player p) 
+        {
+        return p.handIsEmpty() && p.hasAtLeastOneCanasta();
+        }
+
+    private void displayAllHands() 
+        {
+        for (Player p : this.players) 
+            {
+            System.out.printf("%s's hand: %s%n", p.name, p.revealHand());
+            System.out.printf("Melds: %s%n%n", p.revealMelds());
+            }
+        }
+
+    private void resetForNewRound() 
+        {
+        // TODO: return all cards to deck, reshuffle, reset melds, deal new hands
+        }
 
 
     /**
