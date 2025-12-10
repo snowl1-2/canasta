@@ -883,7 +883,7 @@ public final class Canasta
         // free up the decks
         this.decks.clear() ;
 
-        System.out.printf( "%n%nThank you for playing Top This!%n%n" ) ;
+        System.out.printf( "%n%nThank you for playing Canasta!%n%n" ) ;
 
         }   // end tearDown()
     
