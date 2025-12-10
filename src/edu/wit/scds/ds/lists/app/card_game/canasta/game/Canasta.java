@@ -179,7 +179,7 @@ public final class Canasta
     public static void main( final String[] args )
         {
 
-        try ( final Scanner input = new Scanner( System.in ) ; )
+        try ( final Scanner input = new Scanner( System.in ) )
             {
             final Canasta canasta = new Canasta( input ) ;
             
@@ -697,7 +697,7 @@ public final class Canasta
     private void setup()
         {
         
-        // we're not set up yet but we're on our way
+        // we're not set up yet, but we're on our way
         this.running = true ;   // input methods will set this false based upon user input
         
         
@@ -883,7 +883,7 @@ public final class Canasta
         // free up the decks
         this.decks.clear() ;
 
-        System.out.printf( "%n%nThank you for playing Top This!%n%n" ) ;
+        System.out.printf( "%n%nThank you for playing Canasta!%n%n" ) ;
 
         }   // end tearDown()
     
