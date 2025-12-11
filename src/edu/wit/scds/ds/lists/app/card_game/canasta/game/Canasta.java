@@ -301,32 +301,34 @@ public final class Canasta
         }   // end configureCardsPerHand()
     
     /**
-     * determine the number of rounds to play
-     * 
-     * @since 2.0
-     */
-    private void configureStoppingPoint()
+ * determine the number of points to stop at
+ *
+ * valid stopping point: 3000 – 5000 inclusive
+ */
+private void configureStoppingPoint()
+    {
+
+    do
         {
-    
-        // get the number of rounds to play
-        // WAS THIS BEFORE!!!
-        do
-            {
-            this.stoppingPoint = promptForInt( "%nHow many points do you want to stop at (minimum 3000, maximum 5000)?") ;
+        this.stoppingPoint = promptForInt(
+            "%nHow many points do you want to stop at (minimum 3000, maximum 5000)?"
+        );
 
-            if ( !this.running )
-                {
-                return ;
-                }
-            }
-        // can't play more rounds than there are cards in a player's hand
-        while ( this.stoppingPoint < 3000 ) ;
+        if (!this.running)
             {
-            System.out.println("That is not a valid stopping point. Please enter a number between 3000-5000");
+            return;
             }
 
-        }   // end configureNumberOfRounds()
-    
+        if (this.stoppingPoint < 3000 || this.stoppingPoint > 5000)
+            {
+            System.out.println("That is not a valid stopping point. Please enter a number between 3000-5000.");
+            }
+
+        }
+    while (this.stoppingPoint < 3000 || this.stoppingPoint > 5000);
+
+    } // end configureStoppingPoint()
+
     
     /**
      * determine the number of players and set up for play
@@ -550,22 +552,7 @@ public final class Canasta
             // 2. Meld phase (optional/repeatable)
             performMeldPhase( currentPlayer ) ;
 
-<<<<<<< HEAD
             if ( !this.running )
-=======
-
-            displayDivider() ;
-            
-            // System.out.printf( "Round %,d of %,d%n",
-            //                    this.roundNumber,
-            //                    this.stoppingPoint ) ;
-
-            // (re-)set high card tracking
-            Card highCard = null ;
-            highCardHolders.clear() ;
-
-            for ( int i = 0 ; i < this.numberOfPlayers ; i++ )
->>>>>>> 9a0cb60f86337823d1235bda83089daef5556efc
                 {
                 return ;
                 }

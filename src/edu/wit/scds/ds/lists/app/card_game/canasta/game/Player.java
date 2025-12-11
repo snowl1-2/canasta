@@ -36,7 +36,7 @@ import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank ;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Suit ;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Deck ;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Pile ;
-import edu.wit.scds.ds.lists.app.card_game.universal_base.card.CardBase;
+// import edu.wit.scds.ds.lists.app.card_game.universal_base.card.CardBase;
 import edu.wit.scds.ds.lists.app.card_game.universal_base.support.NoCardsException ;
 // import edu.wit.scds.ds.lists.app.card_game.universal_base.card.CardBase ;
 import edu.wit.scds.ds.lists.app.card_game.canasta.pile.Hand ;
@@ -84,12 +84,9 @@ public final class Player
     /** player's name */
     public final String name ;
 
-<<<<<<< HEAD
-=======
     /** adding point clarifications */
     private int totalPoints;
 
->>>>>>> 9a0cb60f86337823d1235bda83089daef5556efc
     /*
      * constructor(s)
      */
@@ -303,7 +300,6 @@ public final class Player
         }   // end cardsWon()
 
     /**
-<<<<<<< HEAD
      * receive all cards from a pile (e.g., when picking up discard pile)
      *
      * @param p
@@ -317,17 +313,6 @@ public final class Player
 
         }   // end receiveCards()
     
-    /**
-     * is the hand empty?
-     * 
-     * @return true if no cards in hand
-     */
-    public boolean handIsEmpty()
-        {
-        
-            return this.hand.isEmpty() ;
-
-        }   // end handIsEmpty()
 
     /**
      * add a meld to this player's melds (exposed API)
@@ -478,45 +463,6 @@ public final class Player
 
 
     /**
-     * current cumulative score
-     *
-     * @return score
-     */
-    public int getScore()
-        {
-
-        return this.score ;
-
-        }   // end getScore()
-
-
-    /**
-     * wrapper for end of round scoring flow
-     */
-    public void scoreRoundEnd()
-        {
-
-        tallyRoundPoints() ;
-
-        }   // end scoreRoundEnd()
-=======
-     * New helper APIs used by driver
-    */
-   /**
-    * receive all cards from a pile (e.g. when picking up discard pile)
-    * 
-    * @param p the pile to receive (will be moved into hand)
-    */
-   public void receiveCards( final Pile p )
-        {
->>>>>>> 9a0cb60f86337823d1235bda83089daef5556efc
-
-        this.hand.moveCardsToBottom(p);
-        this.hand.sort() ;
-
-        } // end receiveCards()
-
-    /**
      * remove a specific card from our hand (wraps existing play a card)
      * 
      * @param c the card to remove
@@ -540,42 +486,6 @@ public final class Player
         return this.hand.isEmpty();
 
         } // end handIsEmpty
-    
-    /**
-     * does the player have at least one canasta (meld of size >= 7)?
-     * 
-     * @return true if yes
-     */
-    public boolean hasAtLeastOneCanasta()
-        {
-
-        for ( final Meld m : this.melds )
-            {
-
-            if ( m.isCanasta() )
-                {
-
-                return true;
-
-                }
-
-            } // end for
-
-        return false;    
-
-        } // end hasAtLeastOneCanasta()
-    
-    /**
-     * add a meld to this player's meld (exposed API)
-     * 
-     * @param m meld to add
-     */
-    public void addMeld( final Meld m )
-        {
-
-        this.melds.add( m ) ;
-
-        } // end addMeld()
 
     /**
      * wrapper for end of round scoring flow
@@ -919,4 +829,5 @@ public final class Player
 
         }   // end main()
 
-    }   // end class Player
+    }    // end class Player
+    
