@@ -35,8 +35,12 @@ import static edu.wit.scds.ds.lists.app.card_game.universal_base.support.Orienta
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Card ;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Pile ;
 import edu.wit.scds.ds.lists.app.card_game.universal_base.support.NoCardsException ;
+import edu.wit.scds.ds.lists.app.card_game.universal_base.card.CardBase ;
 
 import java.util.Collections ;
+import java.util.ArrayList ;
+import java.util.List ;
+
 
 /**
  * Representation of a hand of cards
@@ -124,6 +128,26 @@ public final class Hand extends Pile
         return removeCard( Collections.min( super.cards ) ) ;
 
         }  // end removeLowestCard()
+
+    /**
+     * get a snapshot of all cards currently in this hand.
+     * The returned List is a copy; modifying it will not affect the hand.
+     *
+     * @return list of cards in this hand
+     */
+    public List<Card> getAllCards()
+        {
+
+        final List<Card> copy = new ArrayList<>( this.cards.size() ) ;
+
+        for ( final CardBase c : this.cards )
+            {
+            copy.add( (Card) c ) ;
+            }
+
+        return copy ;
+
+        }   // end getAllCards()
 
 
     /**

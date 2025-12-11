@@ -34,11 +34,15 @@ import static edu.wit.scds.ds.lists.app.card_game.universal_base.support.Orienta
 
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Card;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank;
-import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Suit;
+// import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Suit;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Deck;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Pile ;
 import edu.wit.scds.ds.lists.app.card_game.universal_base.card.CardBase;
 import edu.wit.scds.ds.lists.app.card_game.universal_base.support.Orientation ;
+
+import java.util.ArrayList ;
+import java.util.List ;
+
 
 /**
  * represents a set of matching cards, typically three or more, that earn a player points and/or
@@ -99,10 +103,10 @@ public final class Meld extends Pile
             System.out.println("Not a valid canasta.") ;
             }
         }   // end 1-arg constructor
+
     /*
      * testing/debugging
      */
-
 
     /**
      * (optional) test driver
@@ -112,6 +116,7 @@ public final class Meld extends Pile
      */
     public static void main( final String[] args )
         {
+        
         final Stock myStock = new Stock() ;     // should only accept permanent cards
         final Deck cardSource = new Deck() ;    // contains only permanent cards
 
@@ -128,10 +133,8 @@ public final class Meld extends Pile
         discardPile.addToBottom(myStock.removeCardAt(5));
         discardPile.addToBottom(myStock.removeCardAt(5));
         discardPile.addToBottom(myStock.removeCardAt(5));
-        //discardPile.addToBottom(myStock.removeCardAt(5));
 
         Meld meld = new Meld(discardPile) ;
-
 
         }	// end main()
 
@@ -147,62 +150,122 @@ public final class Meld extends Pile
         Card previousCard = null ;
         Card constantCard = null ;
 
-        for (CardBase card : cards) {
+        for ( final CardBase card : this.cards )
+            {
 
             currentCard = (Card) card ;
 
-        // If current card is joker or 2 add to the count
-        if ( currentCard.rank == Rank.JOKER || currentCard.rank == Rank.TWO )
-            {
-            if (wildCardCounter == 3)
+            // If current card is joker or 2 add to the count
+            if ( ( currentCard.rank == Rank.JOKER ) || ( currentCard.rank == Rank.TWO ) )
                 {
-                return false;
+                if ( wildCardCounter == 3 )
+                    {
+                    return false ;
+                    }
+                else
+                    {
+                    previousCard = currentCard ;
+                    wildCardCounter++ ;
+                    continue ;
+                    }
                 }
-            else
+
+            // Continue if previous card is null
+            if ( previousCard == null )
                 {
                 previousCard = currentCard ;
-                wildCardCounter++ ;
                 continue ;
                 }
-            }
 
-        // Continue if previous card is null
-        if ( previousCard == null )
-            {
+            // Continue if previous card is a wildcard
+            if ( ( previousCard.rank == Rank.JOKER ) || ( previousCard.rank == Rank.TWO ) )
+                {
+                previousCard = currentCard ;
+                continue ;
+                }
+
+            // At this point we've asserted that the previous card isn't a wildcard or null,
+            // and that the current card is not a wildcard
+
+            // Sets the constant card to current card if constant is null
+            if ( constantCard == null )
+                {
+                constantCard = currentCard ;
+                previousCard = currentCard ;
+                continue ;
+                }
+
+            // If the constant card's rank does not match the current card's rank, not a valid meld
+            if ( !constantCard.rank.equals( currentCard.rank ) )
+                {
+                return false ;
+                }
+
             previousCard = currentCard ;
-            continue ;
+
             }
-
-        // Continue if previous card is a wildcard
-        if ( previousCard.rank == Rank.JOKER || previousCard.rank == Rank.TWO )
-            {
-            previousCard = currentCard ;
-            continue ;
-            }
-
-        // At this point we've asserted that the previous card isn't a wildcard or null,
-        // and that the current card is not a wildcard
-
-        // Sets the constant card to current card if constant is null
-        if (constantCard == null)
-            {
-            constantCard = currentCard ;
-            previousCard = currentCard ;
-            continue ;
-            }
-
-        // If the constant card's rank does not match the current card's rank, not a valid meld
-        if (!constantCard.rank.equals(currentCard.rank))
-            {
-            return false ;
-            }
-
-        previousCard = currentCard ;
-
-        }
 
         return true ;
 
         } // end validateMeld()
+
+        /**
+     * get a snapshot of all cards currently in this meld.
+     * The returned List is a copy; modifying it will not affect the meld.
+     *
+     * @return list of cards in this meld
+     */
+    public List<Card> getAllCards()
+        {
+
+        final List<Card> copy = new ArrayList<>( this.cards.size() ) ;
+
+        for ( final CardBase c : this.cards )
+            {
+            copy.add( (Card) c ) ;
+            }
+
+        return copy ;
+
+        }   // end getAllCards()
+
+    
+    /**
+     * is this meld a Canasta?
+     * <p>
+     * For our purposes, any valid meld with 7 or more cards counts.
+     *
+     * @return true if this meld has at least 7 cards
+     */
+    public boolean isCanasta()
+        {
+
+        return this.cardCount() >= 7 ;
+
+        }   // end isCanasta()
+
+     /**
+     * count how many wild cards (2s or Jokers) are in this meld
+     *
+     * @return number of wild cards
+     */
+    public int countWildCards()
+        {
+
+        int wildCount = 0 ;
+
+        for ( final CardBase card : this.cards )
+            {
+            final Card c = (Card) card ;
+
+            if ( ( c.rank == Rank.JOKER ) || ( c.rank == Rank.TWO ) )
+                {
+                wildCount++ ;
+                }
+            }
+
+        return wildCount ;
+
+        }   // end countWildCards()
 
     }	// end class Meld

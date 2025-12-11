@@ -39,6 +39,7 @@ import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Suit ;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Deck ;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Pile ;
 import edu.wit.scds.ds.lists.app.card_game.universal_base.support.NoCardsException ;
+// import edu.wit.scds.ds.lists.app.card_game.universal_base.card.CardBase ;
 import edu.wit.scds.ds.lists.app.card_game.canasta.pile.Hand ;
 import edu.wit.scds.ds.lists.app.card_game.canasta.pile.Meld ;
 import edu.wit.scds.ds.lists.app.card_game.canasta.pile.Stock ;
@@ -76,9 +77,11 @@ public final class Player
     /** groups of cards collected during play */
     private final List<Meld> melds ;
 
+    /** cumulative score for this player */
+    private int score = 0 ;
+
     /** player's name */
     public final String name ;
-
 
     /*
      * constructor(s)
@@ -298,6 +301,202 @@ public final class Player
 
         }   // end cardsWon()
 
+    /**
+     * receive all cards from a pile (e.g., when picking up discard pile)
+     *
+     * @param p
+     *     the pile to receive (will be moved into hand)
+     */
+    public void receiveCards( final Pile p )
+        {
+
+        this.hand.moveCardsToBottom( p ) ;
+        this.hand.sort() ;
+
+        }   // end receiveCards()
+    
+    /**
+     * is the hand empty?
+     * 
+     * @return true if no cards in hand
+     */
+    public boolean handIsEmpty()
+        {
+        
+            return this.hand.isEmpty() ;
+
+        }   // end handIsEmpty()
+
+    /**
+     * add a meld to this player's melds (exposed API)
+     * 
+     * @param meld -> meld to add
+     */
+    public void addMeld( final Meld meld )
+        {
+
+        this.melds.add( meld ) ;
+
+        }   // end addMeld()
+    
+    /**
+     * does the player have at least one canasta (meld of size 7)
+     * 
+     * @return true if yes
+     */
+    public boolean hasAtLeastOneCanasta()
+        {
+        for ( final Meld m : this.melds )
+            {
+            
+            if ( m.isCanasta() )
+                {
+                return true ;
+                }
+
+            }
+        return false ;
+        }
+    
+    /**
+     * can this player form a valid meld using the specified card plus cards in-hand?
+     * <p>
+     * Used to decide whether the discard pile can be taken.
+     * 
+     * @param topCard
+     *      the card on top of the discard pile
+     * 
+     * @return true if the player appears able to form a meld with this card
+     */
+    public boolean canFormMeldWith ( final Card topCard )
+        {
+        
+        int sameRankCount = 0 ;
+        int wildCardCount = 0 ;
+        for ( final Card c : this.hand.getAllCards() )
+            {
+            
+            if ( c.rank == topCard.rank ) 
+                {
+                sameRankCount++ ;
+                }
+            else if ( (c.rank == Rank.JOKER ) || (c.rank == Rank.TWO ) )
+                {
+                wildCardCount++ ;
+                }
+
+            }
+        // very simple heuristic: topCard (1) + at least 2 others (natural or wild)
+        // gives us 3 cards to start a meld. The detailed rules are enforced
+        // by Meld.validateMeld().
+        return ( 1 + sameRankCount + wildCardCount ) >= 3 ;
+
+        }   // end canFormMeldWith()
+
+    /**
+     * Compute and apply this player's score at the end of a round.
+     * Uses:
+     * <ul>
+     * <li>Card point values from the rules</li>
+     * <li>Canasta bonuses (clean vs dirty)</li>
+     * <li>Penalty for cards left in hand</li>
+     * </ul>
+     *
+     * Red 3 (+/- 100) is left as a hook/TODO because it depends on how you
+     * track when Red 3s are laid vs when the round ends.
+     */
+    private void tallyRoundPoints()
+        {
+
+        int roundPoints = 0 ;
+
+        // 1. Points from melds + canasta bonuses
+        for ( final Meld m : this.melds )
+            {
+            // sum values of cards in this meld
+            for ( final Card c : m.getAllCards() )
+                {
+                roundPoints += cardPointValue( c.rank ) ;
+                }
+
+            // canasta bonuses
+            if ( m.isCanasta() )
+                {
+                if ( m.countWildCards() == 0 )
+                    {
+                    // clean canasta = 500
+                    roundPoints += 500 ;
+                    }
+                else
+                    {
+                    // dirty canasta = 300
+                    roundPoints += 300 ;
+                    }
+                }
+            }
+
+        // 2. Red 3 bonus/penalty – depends on additional state (not tracked here)
+        //    Hook: apply +/- 100 per red 3 based on whether player went out.
+
+        // 3. Subtract points for cards left in hand (penalty)
+        for ( final Card c : this.hand.getAllCards() )
+            {
+            roundPoints -= cardPointValue( c.rank ) ;
+            }
+
+        // 4. Apply to cumulative score
+        this.score += roundPoints ;
+
+        }   // end tallyRoundPoints()
+    /**
+     * Point values per card rank based on the project rules:
+     * <ul>
+     * <li>3–7  -&gt; 5 points</li>
+     * <li>8–K  -&gt; 10 points</li>
+     * <li>2, A -&gt; 20 points</li>
+     * <li>Joker-&gt; 50 points</li>
+     * </ul>
+     *
+     * (Red 3 special +/– 100 is handled separately as a bonus/penalty, not here.)
+     */
+    private static int cardPointValue( final Rank r )
+        {
+
+        return switch ( r )
+            {
+            case JOKER -> 50 ;
+            case ACE -> 20 ;
+            case TWO -> 20 ;
+            case KING, QUEEN, JACK, TEN, NINE, EIGHT -> 10 ;
+            case SEVEN, SIX, FIVE, FOUR, THREE -> 5 ;
+            default -> 0 ;
+            } ;
+
+        }   // end cardPointValue()
+
+
+    /**
+     * current cumulative score
+     *
+     * @return score
+     */
+    public int getScore()
+        {
+
+        return this.score ;
+
+        }   // end getScore()
+
+
+    /**
+     * wrapper for end of round scoring flow
+     */
+    public void scoreRoundEnd()
+        {
+
+        tallyRoundPoints() ;
+
+        }   // end scoreRoundEnd()
 
     /*
      * utility methods

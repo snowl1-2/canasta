@@ -408,30 +408,28 @@ public final class Canasta
 
     /**
      * display the current standings for each of the players
+     * now based on score instead of meld count
      *
-     * @since 2.0
+     * @since 3.0 (Canasta implementation)
      */
     private void displayStandings()
         {
-        
-        System.out.printf( "%nAt the end of round %,d of %,d, the standings are:%n",
-                           this.roundNumber,
-                           this.stoppingPoint ) ;
+
+        System.out.printf( "%nCurrent standings:%n" ) ;
 
         for ( final Player aPlayer : this.players )
             {
-            final int meldCount = aPlayer.getMeldCount() ;
-            System.out.printf( "\t%s: %s meld%s%n",
+            System.out.printf( "\t%s: %,d points, %,d meld%s%n",
                                aPlayer.name,
-                               meldCount == 0
-                                   ? "no"
-                                   : String.format( "%,d", meldCount ),
-                               meldCount == 1
+                               aPlayer.getScore(),
+                               aPlayer.getMeldCount(),
+                               ( aPlayer.getMeldCount() == 1
                                    ? ""
-                                   : "s" ) ;
+                                   : "s" ) ) ;
             }
 
         }   // end displayStandings()
+
 
 
     /**
@@ -493,8 +491,8 @@ public final class Canasta
         }   // end reset()
 
 
-    /**
-     * primary driver for the game
+        /**
+     * primary driver for a single hand of Canasta
      */
     private void run()
         {
@@ -502,7 +500,7 @@ public final class Canasta
         this.running = true ;
 
         displayDivider() ;
-        
+
         System.out.printf( """
                            To specify a card, type RS (Rank and Suit) then press enter.
                            
@@ -513,182 +511,387 @@ public final class Canasta
                            If your selection is ., the game will end.
                            
                            Have fun!
-                           """ ) ;
+                           %n""" ) ;
 
-        
-        // deal initial hands
+        // deal initial hands for this hand
         dealHands() ;
 
-        // assertion: all players have the same number of cards in their hand
-
-        int firstPlayerThisRound = 0 ;
-
-        final List<Player> highCardHolders = new LinkedList<>() ;
-
-        // take turns playing
-        for ( this.roundNumber = 1 ;
-              this.roundNumber <= this.stoppingPoint ;
-              this.roundNumber++ )
+        // flip one card from stock to the discard pile if possible
+        if ( !this.stock.isEmpty() )
             {
+            final Card firstDiscard = this.stock.drawTopCard().reveal() ;
+            this.discardPile.addCard( firstDiscard ) ;
+            }
+
+        boolean roundActive = true ;
+        int currentPlayerIndex = 0 ;
+
+        this.roundNumber = 1 ;   // single hand for now
+
+        while ( roundActive && this.running )
+            {
+
+            displayDivider() ;
+
+            final Player currentPlayer = this.players.get( currentPlayerIndex ) ;
+
+            System.out.printf( "%nIt's %s's turn%n", currentPlayer.name ) ;
+
+            displayTableState() ;
+
+            // 1. Draw step
+            performDrawStep( currentPlayer ) ;
 
             if ( !this.running )
                 {
                 return ;
                 }
 
-            // make new meld to hold the cards played during this round
-            // cards will be added face down
-            // after all players have taken their turn, the cards will all be turned face up
-            final Pile cardsInPlay = new Meld().setDefaultFaceDown() ;
+            // 2. Meld phase (optional/repeatable)
+            performMeldPhase( currentPlayer ) ;
 
-
-            displayDivider() ;
-            
-            System.out.printf( "Round %,d of %,d%n",
-                               this.roundNumber,
-                               this.stoppingPoint ) ;
-
-            // (re-)set high card tracking
-            Card highCard = null ;
-            highCardHolders.clear() ;
-
-            for ( int i = 0 ; i < this.numberOfPlayers ; i++ )
+            if ( !this.running )
                 {
-                final int currentPlayerIndex = ( firstPlayerThisRound + i ) %
-                                               this.numberOfPlayers ;
-                final Player currentPlayer = this.players.get( currentPlayerIndex ) ;
+                return ;
+                }
 
-                System.out.printf( "%nIt's %s's turn%n", currentPlayer.name ) ;
+            // 3. Discard step (mandatory)
+            performDiscardPhase( currentPlayer ) ;
 
-                Card cardToPlay = null ;
-
-                while ( cardToPlay == null )
-                    {
-                    cardToPlay = promptForCard( "%nChoose a card from %s: ",
-                                                currentPlayer.revealHand() ) ;
-
-                    if ( !this.running )
-                        {
-                        this.stock.moveCardsToBottom( cardsInPlay ) ;
-
-                        return ;
-                        }
-
-                    // cardToPlay is null if the specified card isn't in the player's hand
-                    cardToPlay = currentPlayer.playACard( cardToPlay ) ;
-                    }
-
-                cardsInPlay.addToBottom( cardToPlay ) ;
-                
-                
-                // NOTE the determination of highest card and winner(s) should follow card selection
-                // by all players but this is simpler for demonstration purposes
-                
-
-                // is this the highest card so far?
-                if ( highCardHolders.isEmpty() )
-                    {
-                    // this is the first card so it's highest
-                    highCard = cardToPlay ;
-                    highCardHolders.add( currentPlayer ) ;
-                    }
-                else
-                    {
-                    // we already have at least 1 highest card
-
-                    // we care about rank and suit when comparing cards
-                    final int cardComparison = cardToPlay.compareTo( highCard ) ;
-
-                    if ( cardComparison > 0 )
-                        {
-                        // new high card
-                        highCard = cardToPlay ;
-                        highCardHolders.clear() ;
-                        highCardHolders.add( currentPlayer ) ;
-                        }
-                    else if ( cardComparison == 0 )
-                        {
-                        // duplicate of high card
-                        highCardHolders.add( currentPlayer ) ;
-                        }
-
-                    // otherwise, card is lower than the highest
-                    }
-
-                }   // end for
-            
-            // reveal all the cards that were played this round
-            cardsInPlay.revealAll() ;
-
-            displayDivider() ;
-
-            final int highCardHolderCount = highCardHolders.size() ;
-
-            if ( highCardHolderCount == 1 )
+            if ( !this.running )
                 {
-                // we have a solo winner of this round
+                return ;
+                }
 
-                final Player winner = highCardHolders.removeFirst() ;
-
-                System.out.printf( "%s won round %,d with the highest card %s of %s%n",
-                                   winner.name,
-                                   this.roundNumber,
-                                   highCard,
-                                   cardsInPlay ) ;
-
-                // give the winner the cards
-                winner.wonRound( cardsInPlay ) ;
+            // 4. Check for going out
+            if ( playerHasGoneOut( currentPlayer ) )
+                {
+                System.out.printf( "%n%s has gone out!%n", currentPlayer.name ) ;
+                roundActive = false ;
                 }
             else
                 {
-                // multiple winners
-                final StringBuilder highCardHolderNames = new StringBuilder() ;
-                String delimiter = "" ;
-
-                final ListIterator<Player> winnerIterator = highCardHolders.listIterator() ;
-
-                while ( winnerIterator.hasNext() )
-                    {
-                    final Player aWinner = winnerIterator.next() ;
-
-                    highCardHolderNames.append( delimiter )
-                                       .append( aWinner.name ) ;
-
-                    winnerIterator.remove() ;
-
-                    if ( highCardHolders.size() == 1 )
-                        {
-                        delimiter = " and " ;
-                        }
-                    else
-                        {
-                        delimiter = ", " ;
-                        }
-
-                    }
-
-                // 2 or more of high card - no winner of this round
-                System.out.printf( "No one won round %,d; %,d player%s, %s, had the highest card %s of %s%n",
-                                   this.roundNumber,
-                                   highCardHolderCount,
-                                   ( highCardHolderCount == 1
-                                       ? ""
-                                       : "s" ),
-                                   highCardHolderNames.toString(),
-                                   highCard,
-                                   cardsInPlay ) ;
-
-                // discard the cards
-                this.discardPile.moveCardsToTop( cardsInPlay ) ;
+                // advance turn – circularly
+                currentPlayerIndex = ( currentPlayerIndex + 1 ) %
+                                     this.numberOfPlayers ;
                 }
 
-            // start the next round with the next player
-            firstPlayerThisRound++ ;
+            }   // end while(roundActive && running)
 
-            displayStandings() ;
-            }   // end for(roundNumber)
+        // End-of-hand scoring
+        scoreRound() ;
+
+        displayStandings() ;
 
         }   // end run()
+
+    /**
+     * display all players' hands and melds plus the top of the discard pile
+     */
+    private void displayTableState()
+        {
+
+        System.out.printf( "%nTable state:%n" ) ;
+
+        for ( final Player aPlayer : this.players )
+            {
+            System.out.printf( "\t%s's hand: %s%n",
+                               aPlayer.name,
+                               aPlayer.revealHand() ) ;
+            System.out.printf( "\t%s's melds: %s%n%n",
+                               aPlayer.name,
+                               aPlayer.revealMelds() ) ;
+            }
+
+        if ( this.discardPile.isEmpty() )
+            {
+            System.out.printf( "Discard pile is empty.%n" ) ;
+            }
+        else
+            {
+            System.out.printf( "Top of discard pile: %s%n",
+                               this.discardPile.lookAtTopCard() ) ;
+            }
+
+        System.out.printf( "%n" ) ;
+
+        }   // end displayTableState()
+
+    /**
+     * perform the draw step for the current player:
+     * attempt to draw from discard pile (if legal) or from stock
+     *
+     * @param currentPlayer
+     *     player taking the turn
+     */
+    private void performDrawStep( final Player currentPlayer )
+        {
+
+        // If discard pile is empty, must draw from stock
+        if ( this.discardPile.isEmpty() )
+            {
+            final Card drawn = this.stock.drawTopCard().reveal() ;
+            currentPlayer.dealtACard( drawn ) ;
+            System.out.printf( "%s drew from stock: %s%n",
+                               currentPlayer.name,
+                               drawn ) ;
+            return ;
+            }
+
+        // Discard pile not empty – ask player which source to use
+        final String response = promptForLine(
+                "%nDraw from stock or discard pile? (S/D): " ) ;
+
+        if ( !this.running || ( response == null ) )
+            {
+            return ;
+            }
+
+        final char choice = Character.toLowerCase( response.trim().charAt( 0 ) ) ;
+
+        if ( choice == 'd' )
+            {
+            final Card topCard = this.discardPile.lookAtTopCard() ;
+
+            if ( currentPlayer.canFormMeldWith( topCard ) )
+                {
+                // allowed to take the entire discard pile
+                System.out.printf( "%s takes the discard pile starting with %s%n",
+                                   currentPlayer.name,
+                                   topCard ) ;
+
+                final Pile taken = this.discardPile.takeDiscardStack() ;
+                currentPlayer.receiveCards( taken ) ;
+                }
+            else
+                {
+                System.out.printf( "%nYou cannot take the discard pile – top card %s%n" +
+                                   "cannot form a valid meld with your hand. Drawing from stock instead.%n",
+                                   topCard ) ;
+
+                final Card drawn = this.stock.drawTopCard().reveal() ;
+                currentPlayer.dealtACard( drawn ) ;
+                System.out.printf( "%s drew from stock: %s%n",
+                                   currentPlayer.name,
+                                   drawn ) ;
+                }
+            }
+        else
+            {
+            // default to stock draw
+            final Card drawn = this.stock.drawTopCard().reveal() ;
+            currentPlayer.dealtACard( drawn ) ;
+            System.out.printf( "%s drew from stock: %s%n",
+                               currentPlayer.name,
+                               drawn ) ;
+            }
+
+        }   // end performDrawStep()
+    
+    /**
+     * interactively create a new meld for the player (if valid)
+     *
+     * @param currentPlayer
+     *     the player creating the meld
+     */
+    private void createNewMeldForPlayer( final Player currentPlayer )
+        {
+
+        // local temporary pile just to collect the "pattern" cards
+        class SamplePile extends Pile
+            { /* temporary collection */ }
+
+        final SamplePile samplePile = new SamplePile() ;
+
+        boolean selecting = true ;
+
+        while ( selecting && this.running )
+            {
+            final Card sampleCard = promptForCard(
+                    "%nChoose a card to include in the new meld from %s: ",
+                    currentPlayer.revealHand() ) ;
+
+            if ( !this.running || ( sampleCard == null ) )
+                {
+                return ;
+                }
+
+            samplePile.addToBottom( sampleCard ) ;
+
+            final String more = promptForLine(
+                    "Add another card to this meld? (y/n): " ) ;
+
+            if ( !this.running || ( more == null ) )
+                {
+                return ;
+                }
+
+            if ( Character.toLowerCase( more.trim().charAt( 0 ) ) != 'y' )
+                {
+                selecting = false ;
+                }
+            }
+
+        if ( samplePile.cardCount() < 3 )
+            {
+            System.out.printf( "%nA meld must contain at least 3 cards.%n" ) ;
+            return ;
+            }
+
+        // Use a temporary Meld to validate the rank/wild pattern
+        final Meld testMeld = new Meld( samplePile ) ;
+
+        if ( testMeld.cardCount() == 0 )
+            {
+            // validateMeld() failed inside Meld(Pile) constructor
+            System.out.printf( "%nThat set of cards does not form a valid Canasta meld.%n" ) ;
+            return ;
+            }
+
+        // Now actually remove matching cards from the player's hand and build the real meld
+        final Meld realMeld = new Meld() ;
+
+        for ( final Card patternCard : testMeld.getAllCards() )
+            {
+            final Card removed = currentPlayer.playACard( patternCard ) ;
+
+            if ( removed == null )
+                {
+                System.out.printf(
+                        "%nYou don't actually have %s in your hand. Aborting meld creation.%n",
+                        patternCard ) ;
+
+                // return any already-removed cards back to the player's hand
+                currentPlayer.receiveCards( realMeld ) ;
+                return ;
+                }
+
+            realMeld.addToBottom( removed.reveal() ) ;
+            }
+
+        currentPlayer.addMeld( realMeld ) ;
+
+        System.out.printf( "%nMeld created for %s: %s%n",
+                           currentPlayer.name,
+                           realMeld.revealAll().toString() ) ;
+
+        }   // end createNewMeldForPlayer()
+
+    /**
+     * allow the current player to create one or more new melds
+     *
+     * @param currentPlayer
+     *     player taking the turn
+     */
+    private void performMeldPhase( final Player currentPlayer )
+        {
+
+        boolean continueMelding = true ;
+
+        while ( continueMelding && this.running )
+            {
+            final String choice = promptForLine(
+                    "%nWould you like to create a new meld? (y/n): " ) ;
+
+            if ( !this.running || ( choice == null ) )
+                {
+                return ;
+                }
+
+            final char c = Character.toLowerCase( choice.trim().charAt( 0 ) ) ;
+
+            if ( c == 'y' )
+                {
+                createNewMeldForPlayer( currentPlayer ) ;
+                }
+            else
+                {
+                continueMelding = false ;
+                }
+            }
+
+        }   // end performMeldPhase()
+
+    /**
+     * require the current player to discard exactly one card
+     *
+     * @param currentPlayer
+     *     player taking the turn
+     */
+    private void performDiscardPhase( final Player currentPlayer )
+        {
+
+        Card cardToDiscard = null ;
+
+        while ( ( cardToDiscard == null ) && this.running )
+            {
+            cardToDiscard = promptForCard(
+                    "%nChoose a card to discard from %s: ",
+                    currentPlayer.revealHand() ) ;
+
+            if ( !this.running || ( cardToDiscard == null ) )
+                {
+                return ;
+                }
+
+            final Card removed = currentPlayer.playACard( cardToDiscard ) ;
+
+            if ( removed == null )
+                {
+                System.out.printf(
+                        "%nYou don't have that card in your hand. Please try again.%n" ) ;
+                cardToDiscard = null ;
+                }
+            else
+                {
+                this.discardPile.addCard( removed.reveal() ) ;
+                System.out.printf( "%s discarded %s%n",
+                                   currentPlayer.name,
+                                   removed ) ;
+                }
+            }
+
+        }   // end performDiscardPhase()
+    
+    /**
+     * has this player gone out?
+     * <p>
+     * Going out requires:
+     * <ul>
+     * <li>no cards left in hand</li>
+     * <li>at least one Canasta meld</li>
+     * </ul>
+     *
+     * @param currentPlayer
+     *     player to check
+     *
+     * @return true if player has gone out
+     */
+    private boolean playerHasGoneOut( final Player currentPlayer )
+        {
+
+        return currentPlayer.handIsEmpty() && currentPlayer.hasAtLeastOneCanasta() ;
+
+        }   // end playerHasGoneOut()
+
+    /**
+     * compute and display scoring for this hand
+     */
+    private void scoreRound()
+        {
+
+        System.out.printf( "%nScoring this hand...%n" ) ;
+
+        for ( final Player aPlayer : this.players )
+            {
+            aPlayer.scoreRoundEnd() ;
+
+            System.out.printf( "\t%s: %,d points total%n",
+                               aPlayer.name,
+                               aPlayer.getScore() ) ;
+            }
+
+        }   // end scoreRound()
 
 
     /**
@@ -1166,4 +1369,4 @@ public final class Canasta
 
         }   // end promptForLine()
 
-    }   // end class YourGame
+    }   // end class Canasta
