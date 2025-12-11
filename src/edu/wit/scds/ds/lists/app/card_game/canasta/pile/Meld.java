@@ -32,6 +32,9 @@ package edu.wit.scds.ds.lists.app.card_game.canasta.pile ;
 
 import static edu.wit.scds.ds.lists.app.card_game.universal_base.support.Orientation.FACE_UP ;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Card;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank;
 // import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Suit;
@@ -66,6 +69,7 @@ public final class Meld extends Pile
      */
     /** by default, cards added to a meld will be turned face up */
     private final static Orientation DEFAULT_CARD_ORIENTATION = FACE_UP ;
+    private boolean isDirty = false;
 
 
     /*
@@ -100,9 +104,44 @@ public final class Meld extends Pile
         if (!validateMeld())
             {
             super.removeAll() ;
-            System.out.println("Not a valid canasta.") ;
+            System.out.println("Not a valid meld.");
             }
         }   // end 1-arg constructor
+<<<<<<< HEAD
+=======
+    
+    /**
+     * helper methods for Canasta rules & scoring
+     */
+
+    /**
+     * is this meld a canasta (7 or more cards)
+     * 
+     * @return true if 7+ cards
+     */
+    public boolean isCanasta()
+        {
+        return super.cardCount() >= 7 ;
+        }
+
+    /**
+     * get all cards in this meld as a List
+     *
+     * @return list of cards (copy)
+     */
+    public List<Card> getAllCards()
+        {
+        List<Card> result = new ArrayList<>();
+
+        for (CardBase cb : this.cards)
+            {
+            result.add((Card) cb);
+            }
+
+        return result;
+        } // end getAllCards()
+
+>>>>>>> 9a0cb60f86337823d1235bda83089daef5556efc
 
     /*
      * testing/debugging
@@ -126,30 +165,52 @@ public final class Meld extends Pile
 
         System.out.println(myStock.revealAll());
 
-        DiscardPile discardPile = new DiscardPile() ;
+        Hand hand = new Hand() ;
 
+<<<<<<< HEAD
         discardPile.addCard(myStock.removeCardAt(5));
         discardPile.addToBottom(myStock.removeCardAt(5));
         discardPile.addToBottom(myStock.removeCardAt(5));
         discardPile.addToBottom(myStock.removeCardAt(5));
         discardPile.addToBottom(myStock.removeCardAt(5));
+=======
+        hand.addToBottom(myStock.removeCardAt(11));
+        hand.addToBottom(myStock.removeCardAt(11));
+        hand.addToBottom(myStock.removeCardAt(11));
+>>>>>>> 9a0cb60f86337823d1235bda83089daef5556efc
 
-        Meld meld = new Meld(discardPile) ;
+         Meld meld = new Meld(hand) ;
+
+         System.out.println(meld.revealAll());
+         System.out.println(myStock.revealAll());
 
         }	// end main()
 
-    /**
-     * Verifies the meld that the user creates by making sure they are all
-     * three of the same card
+        /**
+     * Check whether the current pile of cards is a valid Canasta meld
+     * according to the official game rules.
+     *
+     * Constraints:
+     * - At least 3 cards
+     * - All non-wild cards (non-JOKER, non-TWO) have the same rank
+     * - At most 3 wild cards total (JOKER or TWO)
+     * - No melds that contain THREE as the natural rank
+     * - If the natural rank is SEVEN, wild cards are NOT allowed in that meld
+     *
+     * @return true if this is a valid meld
      */
-
     private boolean validateMeld()
-        {
-        int wildCardCounter = 0 ;
-        Card currentCard;
-        Card previousCard = null ;
-        Card constantCard = null ;
+    {
 
+    int wildCardCount = 0;
+    Rank baseRank = null; // "Common" rank between all cards
+
+    for (CardBase cb : this.cards)
+        {
+        Card c = (Card) cb;
+        Rank r = c.rank;
+
+<<<<<<< HEAD
         for ( final CardBase card : this.cards )
             {
 
@@ -157,6 +218,14 @@ public final class Meld extends Pile
 
             // If current card is joker or 2 add to the count
             if ( ( currentCard.rank == Rank.JOKER ) || ( currentCard.rank == Rank.TWO ) )
+=======
+        // Wild card handler
+        if ( r == Rank.JOKER || r == Rank.TWO )
+            {
+            wildCardCount++;
+            this.isDirty = true;
+            if (wildCardCount >= 4)
+>>>>>>> 9a0cb60f86337823d1235bda83089daef5556efc
                 {
                 if ( wildCardCounter == 3 )
                     {
@@ -169,6 +238,7 @@ public final class Meld extends Pile
                     continue ;
                     }
                 }
+<<<<<<< HEAD
 
             // Continue if previous card is null
             if ( previousCard == null )
@@ -208,6 +278,90 @@ public final class Meld extends Pile
         return true ;
 
         } // end validateMeld()
+=======
+            continue;
+            }
+
+        // Non-wild card handler
+
+        // No melds of 3s
+        if (r == Rank.THREE)
+            {
+            return false;
+            }
+
+        if (baseRank == null)
+            {
+            baseRank = r;
+            } else if (r != baseRank)
+            {
+            // different non-wild rank → invalid
+            return false;
+            }
+        } // end of foreach loop
+
+    // must have at least one non-wild card
+    if (baseRank == null)
+        {
+        return false;
+        }
+
+    // If the meld is of 7s, wild cards are not allowed in that meld
+    if (baseRank == Rank.SEVEN && wildCardCount > 0)
+        {
+        return false;
+        }
+
+    // Checks to see if the card count is less than 3
+    if (this.cardCount() < 3)
+        {
+        return false;
+        }
+
+    return true;
+
+    } // end of validateMeld()
+
+
+    /**
+     * count wild cards (Joker or 2) in this meld
+     *
+     * @return number of wild cards
+     */
+    public int countWildCards()
+    {
+
+    int count = 0;
+
+    for (CardBase cb : this.cards)
+        {
+        Card c = (Card) cb;
+        Rank r = c.rank;   // <-- use the field, not getRank()
+
+        if (r == Rank.JOKER || r == Rank.TWO)
+            {
+            count++;
+            }
+        }
+
+    return count;
+
+    }
+
+    /**
+     * Returns a boolean if a meld is dirty
+     *
+     * @return boolean
+     */
+    public boolean isDirty()
+        {
+
+        return this.isDirty;
+
+        }
+
+ 
+>>>>>>> 9a0cb60f86337823d1235bda83089daef5556efc
 
         /**
      * get a snapshot of all cards currently in this meld.

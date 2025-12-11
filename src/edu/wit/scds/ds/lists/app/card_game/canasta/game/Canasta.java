@@ -287,8 +287,8 @@ public final class Canasta
             //                                           13,
             //                                           maximumCardsPerHand ) ;
 
-            this.numberOfCardsPerHand = 13;
-            System.out.println("\nYou each start with 13 cards in your hand!");
+            this.numberOfCardsPerHand = 11;
+            System.out.println("\nYou each start with 11 cards in your hand!");
 
             if ( !this.running )
                 {
@@ -550,7 +550,22 @@ public final class Canasta
             // 2. Meld phase (optional/repeatable)
             performMeldPhase( currentPlayer ) ;
 
+<<<<<<< HEAD
             if ( !this.running )
+=======
+
+            displayDivider() ;
+            
+            // System.out.printf( "Round %,d of %,d%n",
+            //                    this.roundNumber,
+            //                    this.stoppingPoint ) ;
+
+            // (re-)set high card tracking
+            Card highCard = null ;
+            highCardHolders.clear() ;
+
+            for ( int i = 0 ; i < this.numberOfPlayers ; i++ )
+>>>>>>> 9a0cb60f86337823d1235bda83089daef5556efc
                 {
                 return ;
                 }

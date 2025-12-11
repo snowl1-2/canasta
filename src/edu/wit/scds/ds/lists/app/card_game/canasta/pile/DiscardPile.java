@@ -33,6 +33,7 @@ package edu.wit.scds.ds.lists.app.card_game.canasta.pile ;
 import static edu.wit.scds.ds.lists.app.card_game.universal_base.support.Orientation.FACE_DOWN ;
 
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Card ;
+import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Pile ;
 import edu.wit.scds.ds.lists.app.card_game.universal_base.support.NoCardsException ;
 
@@ -124,6 +125,12 @@ public final class DiscardPile extends Pile
      */
     public Pile takeDiscardStack() throws NoCardsException
         {
+
+        if ( getTopCard().rank == Rank.SEVEN || getTopCard().rank == Rank.THREE)
+            {
+            System.out.println("Can't discard pile: topped by cap");
+            return null ;
+            }
 
         return super.removeAllCards() ;
 

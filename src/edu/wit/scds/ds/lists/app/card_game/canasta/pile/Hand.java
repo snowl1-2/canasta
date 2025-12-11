@@ -33,7 +33,10 @@ package edu.wit.scds.ds.lists.app.card_game.canasta.pile ;
 import static edu.wit.scds.ds.lists.app.card_game.universal_base.support.Orientation.FACE_DOWN ;
 
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Card ;
+import edu.wit.scds.ds.lists.app.card_game.standard_cards.card.Rank;
+import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Deck;
 import edu.wit.scds.ds.lists.app.card_game.standard_cards.pile.Pile ;
+import edu.wit.scds.ds.lists.app.card_game.universal_base.card.CardBase;
 import edu.wit.scds.ds.lists.app.card_game.universal_base.support.NoCardsException ;
 import edu.wit.scds.ds.lists.app.card_game.universal_base.card.CardBase ;
 
@@ -79,6 +82,11 @@ public final class Hand extends Pile
         {
 
         super( FACE_DOWN ) ;
+/*
+        flipAll() ;
+
+        System.out.println(getCapCards().revealAll()) ;
+        System.out.println(getWildCards().revealAll()) ;*/
 
         }	// end no-arg constructor
 
@@ -130,6 +138,7 @@ public final class Hand extends Pile
         }  // end removeLowestCard()
 
     /**
+<<<<<<< HEAD
      * get a snapshot of all cards currently in this hand.
      * The returned List is a copy; modifying it will not affect the hand.
      *
@@ -148,6 +157,76 @@ public final class Hand extends Pile
         return copy ;
 
         }   // end getAllCards()
+=======
+     * Returns all the wild cards as a separate hand for better readability
+     *
+     * @return Hand
+     */
+
+    public Hand getWildCards()
+        {
+
+        Card current ;
+        Hand subHand = new Hand() ;
+
+        for (CardBase cardBase : cards)
+            {
+            current = (Card) cardBase ;
+            if (current.rank == Rank.JOKER || current.rank == Rank.TWO)
+                {
+                subHand.addToBottom(current) ;
+                this.removeCard(current) ;
+                }
+            }
+
+        subHand.sort() ;
+
+        return subHand ;
+
+        } // end getWildCards()
+
+    /**
+     * Returns all the cap cards as a separate hand for better readability
+     *
+     * @return Hand
+     */
+
+    public Hand getCapCards()
+        {
+
+        Card current ;
+        Hand subHand = new Hand() ;
+
+        for (CardBase cardBase : cards)
+            {
+            current = (Card) cardBase ;
+            if (current.rank == Rank.SEVEN || current.rank == Rank.THREE)
+                {
+                subHand.addToBottom(current) ;
+                this.removeCard(current) ;
+                }
+            }
+
+        subHand.sort() ;
+        return subHand ;
+
+        } // end of getCapCards()
+
+
+
+
+    public java.util.List<Card> getAllCards()
+        {
+        java.util.List<Card> result = new java.util.ArrayList<>();
+
+        for (CardBase cb : this.cards)
+            {
+            result.add((Card) cb);
+            }
+
+        return result;
+        }
+>>>>>>> 9a0cb60f86337823d1235bda83089daef5556efc
 
 
     /**
@@ -158,7 +237,27 @@ public final class Hand extends Pile
      */
     public static void main( final String[] args )
         {
-        // TODO Auto-generated method stub
+
+        final Stock myStock = new Stock() ;     // should only accept permanent cards
+        final Deck cardSource = new Deck() ;    // contains only permanent cards
+
+        myStock.moveCardsToBottom( cardSource ) ; // I'm genuinely so pissed
+
+        myStock.shuffle() ;
+
+        Hand hand = new Hand();
+
+        System.out.println(hand.revealAll()) ;
+
+        hand.addToTop(myStock.drawTopCard());
+        hand.addToTop(myStock.drawTopCard());
+        hand.addToTop(myStock.drawTopCard());
+        hand.addToTop(myStock.drawTopCard());
+        hand.addToTop(myStock.drawTopCard());
+
+        System.out.println(hand.revealAll()) ;
+
+
 
         }	// end main()
 
