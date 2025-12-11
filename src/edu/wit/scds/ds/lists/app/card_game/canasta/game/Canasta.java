@@ -282,10 +282,6 @@ public final class Canasta
 
         do
             {
-                // was this before
-            // this.numberOfCardsPerHand = promptForInt( "%nHow many cards per hand (minimum %,d, maximum %,d)?",
-            //                                           13,
-            //                                           maximumCardsPerHand ) ;
 
             this.numberOfCardsPerHand = 11;
             System.out.println("\nYou each start with 11 cards in your hand!");
@@ -902,7 +898,7 @@ private void configureStoppingPoint()
     private void setup()
         {
         
-        // we're not set up yet but we're on our way
+        // we're not set up yet, but we're on our way
         this.running = true ;   // input methods will set this false based upon user input
         
         
